@@ -7,7 +7,7 @@ import os
 from collections import defaultdict
 from xml.etree.ElementTree import tostring
 
-from . settings import *
+from . _settings import *
 from . boundingBox	import *
 
 
@@ -121,7 +121,7 @@ def GetTilesetAxisSize(
 	if minPos > 0:
 		tiles     =  math.floor(minPos / tile_size)
 		origin    += tiles * tile_size
-		tileCount += tiles
+		tileCount -= tiles
 	# Add on some cells if start position was < 0
 	if minPos < 0:
 		tiles     =  math.ceil(minPos / -tile_size)
