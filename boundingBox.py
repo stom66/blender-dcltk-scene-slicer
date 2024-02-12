@@ -1,13 +1,10 @@
 import bpy
 
-import math
-import mathutils
-from mathutils import Vector
-from mathutils.bvhtree import BVHTree
-from typing import Tuple, List, Optional
+from mathutils 	import Vector
+from typing 	import Optional
+
 
 ROUNDING_PRECISION = 3
-
 
 def custom_round(number, decimal_places):
 	factor       = 10 ** decimal_places

@@ -26,4 +26,31 @@ bl_info = {
 	"doc_url"    : "https://github.com/stom66/blender-scene-slicer"
 }
 
-from .main import *
+from . _main 		import *
+from . _settings 	import *
+from . ui 			import *
+
+
+
+# ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗
+# ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║
+# ██████╔╝█████╗  ██║  ███╗██║███████╗   ██║   ██████╔╝███████║   ██║   ██║██║   ██║██╔██╗ ██║
+# ██╔══██╗██╔══╝  ██║   ██║██║╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██║██║   ██║██║╚██╗██║
+# ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║
+# ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+#
+		
+def register():
+	bpy.utils.register_class(SceneSlicerSettings)
+	bpy.types.Scene.ss_settings = bpy.props.PointerProperty(type=SceneSlicerSettings)
+	
+	bpy.utils.register_class(SCENE_OT_RefreshCollections)
+	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Main)
+	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Export)
+
+def unregister():
+	bpy.utils.unregister_class(SCENE_OT_RefreshCollections)
+	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Main)
+	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Export)
+	bpy.utils.unregister_class(SceneSlicerSettings)
+	del bpy.types.Scene.ss_settings
