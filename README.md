@@ -20,8 +20,10 @@ Features
 
 ToDo/Bugs:
 
-* Move origin of object
-* Clone meshes to export, to apply modifiers and move origin
+* tileset.json is only getting data for final tile?
+* grid is wrong size if first cell is not 0,0 - export a collection which is offset to test
+
+* Clone meshes to export, to apply modifiers and move origin, rather than exporting collection
 * Select meshes and selectively export - rather than exporting entire collection
 * Support for Draco
 * Export cannon-js compatible collider data

@@ -13,12 +13,12 @@ def GetTilePositionMin(grid_coords, tileset_data) -> tuple[float, float, float]:
 	"""
 	Returns the lowest coordinates of the cell (its bottom corner).
 
-	:param grid_coords: The grid coordinates of the cell.
-	:type grid_coords: Tuple[float, float, float]
-	:param tileset_data: The tileset data.
-	:type tileset_data: Object{... tile_dimensions: Vector ...}
-	:return: The minimum coordinates of the cell.
-	:rtype: Vector
+	Args:
+	- grid_coords (Tuple[float, float, float]): The grid coordinates of the cell.
+	- tileset_data (Object{... tile_dimensions: tuple[float, float, float], tileset_origin: tuple[float, float, float] ...}): The tileset data.
+
+	Returns:
+	- Tuple[float, float, float]: The minimum coordinates of the cell.
 	"""
 	
 	tileset_origin  = tileset_data["tileset_origin"]
@@ -35,12 +35,12 @@ def GetTilePositionMax(grid_coords, tileset_data) -> tuple[float, float, float]:
 	"""
 	Returns the highest coordinates of the cell (its upper-most corner)
 
-	:param grid_coords: The grid coordinates of the cell.
-	:type grid_coords: Tuple[float, float, float]
-	:param tileset_data: The tileset data.
-	:type tileset_data: Object{... tile_dimensions: Vector ...}
-	:return: The maximum coordinates of the cell.
-	:rtype: Vector
+	Args:
+	- grid_coords (Tuple[float, float, float]): The grid coordinates of the cell.
+	- tileset_data (Object{... tile_dimensions: tuple[float, float, float] ...}): The tileset data.
+
+	Returns:
+	- Tuple[float, float, float]: The maximum coordinates of the cell.
 	"""
 
 	[min_x, min_y, min_z] = GetTilePositionMin(grid_coords, tileset_data)
@@ -58,14 +58,13 @@ def GetTilePositionCenter(grid_coords, tileset_data) -> tuple[float, float, floa
 	"""
 	Returns the center coordinates of the cell.
 
-	:param grid_coords: The grid coordinates of the cell.
-	:type grid_coords: Tuple[float, float, float]
-	:param tileset_data: The tileset data.
-	:type tileset_data: Object{... tile_dimensions: Vector ...}
-	:return: The center coordinates of the cell.
-	:rtype: Vector
-	"""
+	Args:
+	- grid_coords (Tuple[float, float, float]): The grid coordinates of the cell.
+	- tileset_data (Object{... tile_dimensions: tuple[float, float, float], tileset_origin: tuple[float, float, float] ...}): The tileset data.
 
+	Returns:
+	- Tuple[float, float, float]: The center coordinates of the cell.
+	"""
 
 	[min_x, min_y, min_z] = GetTilePositionMin(grid_coords, tileset_data)
 	

@@ -42,8 +42,8 @@ from . boundingBox	import *
 from . booleans		import *
 from . cutter		import CreateCutter, CreateCutterHelper
 from . export		import ExportTileToGLtf, ExportTilesetToJSON
-from . tiles		import *
-from . tilesets		import *
+from . tiles		import GetTilePositionMin, GetTilePositionMax, GetTilePositionCenter
+from . tilesets		import CreateTilesetFromCollection
 #from . triCounts 	import *
 
 from . settings import *
@@ -98,6 +98,21 @@ def Main():
 	log("#      Exporting collections to tilset3d            #")
 	log("#---------------------------------------------------#")
 
+	# Get scene slicer settings
+	ss_settings = bpy.context.scene.ss_settings
+
+	collection = bpy.data.collections.get(ss_settings.export_collection)
+
+	if collection:
+		result = SliceCollection(collection)
+		return result
+	else:
+		log(f"ERROR: No collection specified. Nothing to do...")
+		log("-----------------------------------------------------")
+		return {'FAILED - No collection specified'}
+
+	"""
+	OLD APPROACH FOR FINDING COLLECTION BY PREFIX
 	# Check that the "_export" collection exists
 	tilesetCollectionExists = False
 	collection_prefix       = bpy.context.scene.ss_settings.collection_prefix
@@ -114,7 +129,7 @@ def Main():
 	if not tilesetCollectionExists:
 		log(f"ERROR: a collection with '{collection_prefix}' in the name could not be found. Nothing to do...")
 		log("-----------------------------------------------------")
-
+	"""
 
 
 # ███████╗██╗     ██╗ ██████╗███████╗██████╗     ███╗   ███╗ █████╗ ██╗███╗   ██╗
@@ -137,23 +152,8 @@ def SliceCollection(col: bpy.types.Collection) -> None:
 	# Get scene slicer settings
 	ss_settings = bpy.context.scene.ss_settings
 
-	# Get bounds min/max points for all objects in the collections
-	bounds_min, bounds_max, bounds_com = GetCollectionBounds(col)
-
-	# Use bounds to work out the required tileset size and origin
-	tileset_size, tileset_origin = GetTilesetSizeOrigin(bounds_min, bounds_max, ss_settings.tile_dimensions)
-
-	# Build Tileset data
-	tileset_data = {
-		"name"           : col.name.replace(ss_settings.collection_prefix, ''),
-		"tile_dimensions": ss_settings.tile_dimensions,
-		"tileset_size"   : tileset_size,
-		"tileset_origin" : tileset_origin,
-		"bounds_min"     : bounds_min,
-		"bounds_max"     : bounds_max,
-		"bounds_com"     : bounds_com,
-		"tiles"          : []
-	}
+	# Generate the basic tileset data from the collection -size, bounds, etc
+	tileset_data = CreateTilesetFromCollection(col)
 
 	# Create/update the cutter and the helper object
 	cutter        = CreateCutter(tileset_data)
@@ -178,6 +178,8 @@ def SliceCollection(col: bpy.types.Collection) -> None:
 	skipped_count = 0
 
 	# Now we loop through each of the tiles, adding an entry to the tiles array for each tile
+	tileset_size = tileset_data["tileset_size"]
+
 	for x in range(tileset_size[0]):
 		tileset_data["tiles"].append([])
 
@@ -225,10 +227,11 @@ def SliceCollection(col: bpy.types.Collection) -> None:
 		obj.modifiers.remove(modifier)
 
 	# Export the tileset JSON
-	ExportTilesetToJSON(tile_data, ss_settings.output_path)
+	ExportTilesetToJSON(tileset_data, ss_settings.output_path)
 
 	log("Processed", processed_count, "tiles, skipped", skipped_count)
 	log("-----------------------------------------------------")
+	return {'FINISHED'}
 
 
 
@@ -248,7 +251,18 @@ class VIEW3D_PT_SceneSlicer_Export(bpy.types.Operator):
 
 	def execute(self, context):
 		self.report({'INFO'}, 'Exporting...')
-		Main()
+		result = Main()
+		return result
+
+# UI button to refresh collection dropdown
+class SCENE_OT_RefreshCollections(bpy.types.Operator):
+	bl_idname  = "scene.refresh_collections"
+	bl_label   = "Refresh Collections"
+	bl_options = {'REGISTER'}
+
+	def execute(self, context):
+		# Trigger the update_collection_items method
+		context.scene.ss_settings.refresh_collections(context)
 		return {'FINISHED'}
 
 # UI Panel class
@@ -261,22 +275,31 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 	def draw(self, context):
 		layout = self.layout
 
+		# Output path
 		row = layout.row()
 		row.label(text="Output Path:")
 		row.prop(context.scene.ss_settings, "output_path", text="")
 
-		row = layout.row()
-		row.label(text="Collection Prefix:")
-		row.prop(context.scene.ss_settings, "collection_prefix", text="")
+		#row = layout.row()
+		#row.label(text="Collection Prefix:")
+		#row.prop(context.scene.ss_settings, "collection_prefix", text="")
 
+		# Collection dropdown
+		row = layout.row()
+		row.label(text="Collection to export")
+		col = row.column(align=True)
+		col.prop(context.scene.ss_settings, "export_collection", text="")
+		col = row.column(align=True)
+		col.operator("scene.refresh_collections", text="", icon='FILE_REFRESH')
+
+		# Grid size
 		row = layout.row()
 		row.label(text="Grid Size:")
-
 		row = layout.row()
 		row.prop(context.scene.ss_settings, "tile_dimensions", text="")
 
+		# Btn: Slice and Export
 		row = layout.row()
-		#row.label(text="Select Sequenced Vertices to:")
 		row.operator(VIEW3D_PT_SceneSlicer_Export.bl_idname, text="Slice and Export", icon="FILE_VOLUME")
 
 
@@ -292,10 +315,13 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 def register():
 	bpy.utils.register_class(SceneSlicerSettings)
 	bpy.types.Scene.ss_settings = bpy.props.PointerProperty(type=SceneSlicerSettings)
+	
+	bpy.utils.register_class(SCENE_OT_RefreshCollections)
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Main)
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Export)
 
 def unregister():
+	bpy.utils.unregister_class(SCENE_OT_RefreshCollections)
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Main)
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Export)
 	bpy.utils.unregister_class(SceneSlicerSettings)

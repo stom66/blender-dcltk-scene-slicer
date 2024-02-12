@@ -3,7 +3,6 @@ import json
 import math
 import mathutils
 import os
-from mathutils import Vector
 from collections import defaultdict
 from xml.etree.ElementTree import tostring
 
@@ -23,8 +22,11 @@ def GetExportPath(output_path: str) -> str:
 	"""
 	Get the export path for the collection.
 
-	:return: The export path.
-	:rtype: str
+	Args:
+	- output_path (str): The output path for the collection.
+
+	Returns:
+	- str: The export path.
 	"""
 
 	# Set the export file name to match the collection name (minus the MATCH_STRING)
@@ -71,14 +73,16 @@ def ExportTilesetToJSON(tileset_data, output_path: str):
 
 def ExportTileToGLtf(filename: str, collection: bpy.types.Collection) -> None:
 	"""
-	Export the specified collection to a GLTF of filename
+	Export the specified collection to a GLTF file with the given filename.
 
-	:param filename: The name of the file to export.
-	:type filename: str
-	:param collection: The Blender collection containing objects to export.
-	:type collection: bpy.types.Collection
-	:return: None
+	Args:
+	- filename (str): The name of the file to export.
+	- collection (bpy.types.Collection): The Blender collection containing objects to export.
+
+	Returns:
+	- None
 	"""
+
 	file_path = str((GetExportPath() + filename + '.gltf'))
 
 	#log("Exporting tile" + filename + " to path: " + file_path)	

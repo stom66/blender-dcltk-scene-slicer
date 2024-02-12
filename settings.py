@@ -11,6 +11,21 @@ import bpy
 
 # Define default settings
 class SceneSlicerSettings(bpy.types.PropertyGroup):
+	
+	def refresh_collections(self, context):
+		print("Refreshing collection dropdown")
+		items = [(col.name, col.name, col.name) for col in bpy.context.scene.collection.children]
+		return items
+
+	export_collection: bpy.props.EnumProperty(
+		name        = "Export Collection",
+		description = "Choose a collection to slice and export",
+		items       = refresh_collections,
+		default 	= None,
+		#update      = refresh_collections,
+		attr        = "export_collection"
+	)  # type: ignore
+
 
 	output_path: bpy.props.StringProperty(
 		name    = "Output path",

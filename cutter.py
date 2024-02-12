@@ -12,7 +12,7 @@ import bpy
 
 CUTTER_NAME = "SS_Cutter"
 	
-def CreateCutter(tileset_data) -> object:
+def CreateCutter(tileset) -> object:
 	"""
 	Creates a cutter cube for slicing, ensuring it is in the correct collection and at the right size.
 
@@ -39,7 +39,7 @@ def CreateCutter(tileset_data) -> object:
 		cutter.display_type = 'WIRE'
 
 	# Ensure the cutter cube is at the correct size for our slicing
-	cutter.scale = tileset_data["tile_dimensions"]
+	cutter.scale = tileset["tile_dimensions"]
 		
 	# Clear existing collections and ensure our cutter cube is on the right collection
 	for col in cutter.users_collection:
@@ -58,21 +58,36 @@ def CreateCutter(tileset_data) -> object:
 # ╚██████╗╚██████╔╝   ██║      ██║   ███████╗██║  ██║    ██║  ██║███████╗███████╗██║     ███████╗██║  ██║
 #  ╚═════╝ ╚═════╝    ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝
 #
+
+def ToggleCutterHelper():
+	"""
+	Toggle the visibility of the cutter helper object. If it doesn't exist, create it.
+	If it exists, delete it.
+	"""
+	# Check if the cube already exists
+	cutter_helper = bpy.data.objects.get(CUTTER_NAME + "Helper")
+
+	if cutter_helper is None:
+		CreateCutterHelper()
+	else:
+		bpy.data.objects.remove(cutter_helper, do_unlink=True)
+
+
 	
-def CreateCutterHelper(tileset_data) -> object:
+def CreateCutterHelper(tileset) -> object:
 	"""
 	Create or update the cutter helper cube for slicing.
 
-	:param tileset_data: Data containing information about the tileset.
-	:type tileset_data: dict
-	
+	:param tileset: Data containing information about the tileset.
+	:type tileset: dict
+
 	:return: The created or updated cutter helper object.
 	:rtype: bpy.types.Object
 	"""
 	# shorthand references to the values we need
-	tileset_origin  = tileset_data["tileset_origin"] 	# [float, float, float]
-	tileset_size    = tileset_data["tileset_size"] 		# [int, int, int]
-	tile_dimensions = tileset_data["tile_dimensions"] 	# [float, float, float]
+	tileset_origin  = tileset["tileset_origin"] 	# [float, float, float]
+	tileset_size    = tileset["tileset_size"] 		# [int, int, int]
+	tile_dimensions = tileset["tile_dimensions"] 	# [float, float, float]
 
 	# Check if "Cutters" collection already exists
 	cutters_collection = bpy.data.collections.get("Cutters")
