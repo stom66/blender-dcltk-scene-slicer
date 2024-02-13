@@ -49,3 +49,28 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 		subtype = 'XYZ',
 		size    = 3
 	) # type: ignore
+
+	minify_json: bpy.props.BoolProperty(
+		name    = "Minify JSON",
+		default = True,
+	) # type: ignore
+
+	use_draco: bpy.props.BoolProperty(
+		name    = "Use Draco compression",
+		default = False,
+	) # type: ignore
+
+	skip_colliders: bpy.props.BoolProperty(
+		name    = "Skip exporting _colliders",
+		default = True,
+	) # type: ignore
+
+	export_origin: bpy.props.EnumProperty(
+		name   = "Export origin location",
+		items  = [
+			("CENTER",   "Center",   "Center of the tile"),
+			("TILE_MIN", "Tile Min", "Minimum coordinates of the tile"),
+			("TILE_MAX", "Tile Max", "Maximum coordinates of the tile"),
+		],
+		default = "CENTER",
+	)  # type: ignore

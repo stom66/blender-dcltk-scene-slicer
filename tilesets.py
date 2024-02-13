@@ -29,29 +29,36 @@ def CreateTilesetFromCollection(col: bpy.types.Collection) -> dict[str, object]:
 	Returns:
 	- Dict[str, object]: A dictionary containing tileset data.
 		The dictionary includes the following keys:
-		- "name": The name of the tileset.
-		- "tile_dimensions": The dimensions of each tile.
-		- "tileset_size": The size of the tileset.
-		- "tileset_origin": The origin point of the tileset.
-		- "bounds_min": The minimum coordinates of the bounding box.
-		- "bounds_max": The maximum coordinates of the bounding box.
-		- "bounds_com": The center of mass coordinates of the bounding box.
-		- "tiles": An empty list for future tile data.
+		- "name"            : The name of the tileset.
+		- "tile_dimensions" : The dimensions of each tile.
+		- "tileset_size"    : The size of the tileset.
+		- "tileset_origin"  : The origin point of the tileset.
+		- "bounds_min"      : The minimum coordinates of the bounding box.
+		- "bounds_max"      : The maximum coordinates of the bounding box.
+		- "bounds_com"      : The center of mass coordinates of the bounding box.
+		- "tiles"           : An empty list for future tile data.
 	"""
 
 	# Get scene slicer settings
 	ss_settings = bpy.context.scene.ss_settings
 
+	# Convert the tile dimensions to a tuple
+	tile_dimensions = (
+		ss_settings.tile_dimensions.x,
+		ss_settings.tile_dimensions.y,
+		ss_settings.tile_dimensions.z,
+	)
+
 	# Get bounds min/max points for all objects in the collections
 	bounds_min, bounds_max, bounds_com = GetCollectionBounds(col)
 
 	# Use bounds to work out the required tileset size and origin
-	tileset_size, tileset_origin = GetTilesetSizeOrigin(bounds_min, bounds_max, ss_settings.tile_dimensions)
+	tileset_size, tileset_origin = GetTilesetSizeOrigin(bounds_min, bounds_max, tile_dimensions)
 
 	# Build Tileset data
 	tileset_data = {
 		"name"           : col.name.replace(ss_settings.collection_prefix, ''),
-		"tile_dimensions": ss_settings.tile_dimensions,
+		"tile_dimensions": tile_dimensions,
 		"tileset_size"   : tileset_size,
 		"tileset_origin" : tileset_origin,
 		"bounds_min"     : bounds_min,

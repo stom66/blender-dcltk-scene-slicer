@@ -21,42 +21,45 @@ def custom_round(number, decimal_places):
 # ╚═════╝ ╚═════╝      ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     
 #                                                                               
 
-def CheckForObjectsWithinBounds(
-		collection: bpy.types.Collection, 
+def GetObjectsWithinBounds(
+		objects   : dict[bpy.types.Object, tuple[tuple[float, float, float], tuple[float, float, float]]], 
 		bounds_min: tuple[float, float, float], 
 		bounds_max: tuple[float, float, float]
-    ) -> tuple[
-		bool,
-		Optional[list[bpy.types.Object]]
-	]:
+    ) -> list[bpy.types.Object]:
 	"""
-	Checks if there are any mesh objects in the collection within the specified bounding box.
+	Checks if there are any mesh objects within the specified bounding box.
 
-	:param collection: The collection containing the objects to check.
-	:type collection: bpy.types.Collection
+	:param objects: Dictionary mapping mesh objects to their bounding box coordinates.
+	:type objects: dict[bpy.types.Object, tuple[tuple[float, float, float], tuple[float, float, float]]]
 
 	:param bounds_min: The minimum coordinates of the bounding box.
-	:type bounds_min: tuple[float, float, float]
+	:type bounds_min: Tuple[float, float, float]
 
 	:param bounds_max: The maximum coordinates of the bounding box.
-	:type bounds_max: tuple[float, float, float]
+	:type bounds_max: Tuple[float, float, float]
 
 	:return: Tuple containing a boolean indicating if there are objects within the bounding box
 				and a list of objects (or None if no objects are found).
 	:rtype: Tuple[bool, Optional[List[bpy.types.Object]]]
 	"""
 
-	#bpy.context.scene.update_tag()
+	# Get scene slicer settings
+	ss_settings = bpy.context.scene.ss_settings
 
-	objects = []
+	# Create a list to store the objects in
+	objects_in_bounds = []
 
-	for obj in collection.all_objects:
-		#bpy.context.view_layer.update()
+	for obj, obj_bounds in objects.items():
 
+		# Check if we're skipping colliders
+		if ss_settings.skip_colliders and obj.name.endswith("_collider"):
+			continue
+
+		
 		if obj.type == 'MESH':
-
-			# Get the min and max points of the object bounds
-			[obj_bounds_min, obj_bounds_max] = GetObjectBounds(obj)
+			
+			# Extract the minimum and maximum bounds for the current object
+			obj_bounds_min, obj_bounds_max = obj_bounds
 
 			# Check if bounding boxes intersect or if one object is completely inside the other
 			x_overlap = (bounds_max[0] > obj_bounds_min[0]) and (bounds_min[0] < obj_bounds_max[0])
@@ -65,11 +68,11 @@ def CheckForObjectsWithinBounds(
 
 			# If all three axis overlap, then it's a true overlap. Add the object to the list
 			if x_overlap and y_overlap and z_overlap:
-				objects.append(obj)
+				objects_in_bounds.append(obj)
 				#return True
 
 	# Return true/false if objects were in bounds, plus a list of the objects
-	return len(objects) > 0, objects
+	return objects_in_bounds
 
 
 
@@ -104,7 +107,7 @@ def GetObjectBounds(obj: object) -> tuple[
 	
 	# Check each bounding box corner, in world space
 	for v in obj.bound_box:
-		v_world = obj.matrix_world @ Vector((v[0], v[1], v[2]))
+		v_world = obj.matrix_world.copy() @ Vector((v[0], v[1], v[2])).copy()
 
 		# Update min/max for each axis
 		for i in range(3):
@@ -137,11 +140,17 @@ def GetCollectionObjectBounds(col: bpy.types.Collection) -> dict[
 			]
 	"""
 
+	# Get scene slicer settings
+	ss_settings = bpy.context.scene.ss_settings
+
 	# Blank dict to store the results
 	object_bounds = {}
 	
 	# Get the bounds for each object in the collection and store it with the object reference as the key
 	for obj in col.all_objects:
+		if ss_settings.skip_colliders and obj.name.endswith("_collider"):
+			continue
+
 		object_bounds[obj] = GetObjectBounds(obj)
 	
 	return object_bounds

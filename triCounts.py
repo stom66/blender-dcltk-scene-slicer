@@ -1,5 +1,9 @@
 import bpy
 
+#
+# NOTE: This file is redundant and can be removed. Keeping it around for posterity/reference
+#
+
 # ████████╗██████╗ ██╗     ██████╗ ██████╗ ██╗   ██╗███╗   ██╗████████╗
 # ╚══██╔══╝██╔══██╗██║    ██╔════╝██╔═══██╗██║   ██║████╗  ██║╚══██╔══╝
 #    ██║   ██████╔╝██║    ██║     ██║   ██║██║   ██║██╔██╗ ██║   ██║   
@@ -66,7 +70,6 @@ def GetObjectTriCount(obj) -> int:
 
 	# Add a Triangulate modifier
 	duplicate_obj.modifiers.new(name='Triangulate', type='TRIANGULATE')
-
 
 	# Set the original object as the active object
 	bpy.context.view_layer.objects.active = duplicate_obj
