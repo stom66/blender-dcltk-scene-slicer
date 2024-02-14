@@ -1,8 +1,16 @@
 # Blender files
-
 *.blend[0-9]
 
-# python temp paths
+# Python temp paths
 __pycache__/
 *.py[cod]
-test-files/tileset*
+
+# Ignore specific file types in test-files directory
+test-files/*.gltf
+test-files/*.json
+
+# Ignore the tileset folder within the test-files directory
+test-files/tileset/
+test-files/animation/
+test-files/textures/
+test-files/park.glb
