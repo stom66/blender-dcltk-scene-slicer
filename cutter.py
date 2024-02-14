@@ -126,6 +126,9 @@ def CreateCutterHelper(tileset) -> object:
 		
 	cutters_collection.objects.link(cutter_helper)
 
+	# Ensure it's not selected
+	cutter_helper.select_set(False)
+
 	return cutter_helper
 
 

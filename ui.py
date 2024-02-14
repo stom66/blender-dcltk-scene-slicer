@@ -36,8 +36,8 @@ class SCENE_OT_RefreshCollections(bpy.types.Operator):
 
 # UI Panel class
 class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
-	bl_label       = 'Scene Slicer'
-	bl_category    = 'Scene Slicer'
+	bl_label       = 'Scene Slicer: Export'
+	bl_category    = 'DCL Toolkit'
 	bl_region_type = 'UI'
 	bl_space_type  = 'VIEW_3D'
 
@@ -46,7 +46,7 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 
 		# Collection dropdown
 		row = layout.row()
-		row.label(text="Collection to export")
+		row.label(text="Export collection")
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "export_collection", text="")
 		col = row.column(align=True)
@@ -54,16 +54,12 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 
 		# Output path
 		row = layout.row()
-		row.label(text="Output Path:")
+		row.label(text="Output path:")
 		row.prop(context.scene.ss_settings, "output_path", text="")
-
-		#row = layout.row()
-		#row.label(text="Collection Prefix:")
-		#row.prop(context.scene.ss_settings, "collection_prefix", text="")
 
 		# Grid size
 		row = layout.row()
-		row.label(text="Grid Size:")
+		row.label(text="Grid size:")
 		row = layout.row()
 		row.prop(context.scene.ss_settings, "tile_dimensions", text="")
 
@@ -73,8 +69,8 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 		row.operator(VIEW3D_PT_SceneSlicer_Export.bl_idname, text="Slice and Export", icon="FILE_VOLUME")
 
 class VIEW3D_PT_SceneSlicer_Options(bpy.types.Panel):
-	bl_label       = 'Advanced Settings'
-	bl_category    = 'Scene Slicer'
+	bl_label       = 'Scene Slicer: Advanced Settings'
+	bl_category    = 'DCL Toolkit'
 	bl_region_type = 'UI'
 	bl_space_type  = 'VIEW_3D'
 	bl_options     = { 'DEFAULT_CLOSED' }
@@ -82,31 +78,54 @@ class VIEW3D_PT_SceneSlicer_Options(bpy.types.Panel):
 	def draw(self, context):
 		layout = self.layout
 
-		# Tile origin
+		# Bool solver method
 		row = layout.row()
-		row.label(text="Tile origin")
+		col = row.column(align=False)
+		col.label(text="Bool: solver method")
 		col = row.column(align=True)
-		col.prop(context.scene.ss_settings, "export_origin", text="")
+		col.prop(context.scene.ss_settings, "bool_solver", text="")
+
+		# Skip exporting colliders
+		row = layout.row()
+		col = row.column(align=False)
+		col.label(text="Colliders:  skip export")
+		col = row.column(align=True)
+		col.prop(context.scene.ss_settings, "skip_colliders", text="")
 
 		# Minify JSON
 		row = layout.row()
 		col = row.column(align=False)
-		col.label(text="Minify tileset JSON")
-
+		col.label(text="JSON: minify output")
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "minify_json", text="")
-
 	
-		# use Draco compression
+		# glTF settings
 		row = layout.row()
+		row.label(text="glTF Settings:")
+		box = layout.box()
+
+		# Draco compression
+		row = box.row()
 		col = row.column(align=False)
-		col.label(text="glTF: use Draco compression")
+		col.label(text="Draco compression")
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "use_draco", text="")
-		
-		# Skip exporting colliders
-		row = layout.row()
+	
+		# glTF export format
+		row = box.row()
 		col = row.column(align=False)
-		col.label(text="Skip export for *_colliders")
+		col.label(text="Export format")
 		col = row.column(align=True)
-		col.prop(context.scene.ss_settings, "skip_colliders", text="")
+		col.prop(context.scene.ss_settings, "export_format", text="")
+
+		# Tile prefix
+		row = box.row()
+		row.label(text="Filename prefix")
+		col = row.column(align=True)
+		col.prop(context.scene.ss_settings, "output_prefix", text="")
+
+		# Tile origin
+		row = box.row()
+		row.label(text="Tile origin")
+		col = row.column(align=True)
+		col.prop(context.scene.ss_settings, "export_origin", text="")

@@ -107,7 +107,7 @@ def GetObjectBounds(obj: object) -> tuple[
 	
 	# Check each bounding box corner, in world space
 	for v in obj.bound_box:
-		v_world = obj.matrix_world.copy() @ Vector((v[0], v[1], v[2])).copy()
+		v_world = obj.matrix_world @ Vector((v[0], v[1], v[2]))
 
 		# Update min/max for each axis
 		for i in range(3):

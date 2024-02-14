@@ -57,13 +57,15 @@ def CreateTilesetFromCollection(col: bpy.types.Collection) -> dict[str, object]:
 
 	# Build Tileset data
 	tileset_data = {
-		"name"           : col.name.replace(ss_settings.collection_prefix, ''),
-		"tile_dimensions": tile_dimensions,
+		"name"           : col.name,
 		"tileset_size"   : tileset_size,
 		"tileset_origin" : tileset_origin,
-		"bounds_min"     : bounds_min,
-		"bounds_max"     : bounds_max,
-		"bounds_com"     : bounds_com,
+		"tile_dimensions": tile_dimensions,
+		"tile_format"    : ss_settings.export_format,
+		"tile_origin"    : ss_settings.export_origin,
+		#"bounds_min"     : bounds_min,
+		#"bounds_max"     : bounds_max,
+		#"bounds_com"     : bounds_com,
 		"tiles"          : []
 	}
 

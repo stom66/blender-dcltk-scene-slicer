@@ -25,7 +25,8 @@ def Log(*args):
 	else:
 		LOG_TXT = bpy.data.texts[LOG_PATH]
 
-	message = ' '.join(str(arg) for arg in args)
+	formatted_args = [f"{arg:.6f}" if isinstance(arg, float) else str(arg) for arg in args]
+	message = ' '.join(formatted_args)
 	print(message)
 	LOG_TXT.write(message + '\n')
 

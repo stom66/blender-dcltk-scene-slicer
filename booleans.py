@@ -25,19 +25,22 @@ def AddIntersectBooleans(obj, cutter):
 	if obj.type != 'MESH':
 		return
 	
-	# Check if the object already has an INTERSECT boolean modifier with the specified target	
+	# Check if the object already has an INTERSECT boolean modifier with the specified cutter
 	modifier_exists = False
 	for modifier in obj.modifiers:
 		if modifier.type == 'BOOLEAN' and modifier.operation == 'INTERSECT' and modifier.object == cutter:
+			modifier.solver = bpy.context.scene.ss_settings.bool_solver
 			modifier_exists = True
 			break
 
 	# If no INTERSECT boolean modifier is found, add one
 	if not modifier_exists:
-		bool_modifier           = obj.modifiers.new(name = "Boolean", type = 'BOOLEAN')
-		bool_modifier.object    = cutter
-		bool_modifier.operation = 'INTERSECT'
-		bool_modifier.solver    = 'EXACT'
+		bool_modifier                  = obj.modifiers.new(name = "Boolean", type = 'BOOLEAN')
+		bool_modifier.object           = cutter
+		bool_modifier.operation        = 'INTERSECT'
+		bool_modifier.solver           = bpy.context.scene.ss_settings.bool_solver
+		bool_modifier.double_threshold = 0.0001
+		bool_modifier.use_hole_tolerant = True
 
 
 def RemoveIntersectBooleans(obj, cutter):

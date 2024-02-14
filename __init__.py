@@ -15,15 +15,15 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 bl_info = {
-	"name"       : "Scene Slicer",
-	"description": "Exporter tool for partitioning a scene into a collection of 3d tiles",
+	"name"       : "DCL Toolkit: Scene Slicer",
+	"description": "Exporter tool for partitioning a scene into a collection of 3D tiles and exporting them to glTF",
 	"author"     : "Tom Steventon - stom66",
 	"version"    : (1, 0, 0),
 	"blender"    : (3, 6, 0),
-	"location"   : "3D Viewport -> Sidebar -> Scene Slicer",
-	"description": "Scene Slicer",
+	"location"   : "3D Viewport -> Sidebar -> DCL Toolkit",
+	"description": "DCL Toolkit: Scene Slicer",
 	"category"   : "Import-Export",
-	"doc_url"    : "https://github.com/stom66/blender-scene-slicer"
+	"doc_url"    : "https://github.com/stom66/blender-dcltk-scene-slicer"
 }
 
 from . _main 		import *

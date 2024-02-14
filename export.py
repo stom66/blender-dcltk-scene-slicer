@@ -180,6 +180,7 @@ def ExportCollectionToGLtf(collection: bpy.types.Collection, filename: str) -> N
 	# Do the actual export, inherit the default settings specified above
 	export_settings                                         = gltf_settings
 	export_settings["filepath"]                             = file_path
+	export_settings["export_format"]						= ss_settings.export_format
 	export_settings["use_active_collection"]                = True
 	export_settings["use_active_collection_with_nested"]    = True
 	export_settings["export_draco_mesh_compression_enable"] = ss_settings.use_draco
@@ -215,6 +216,7 @@ def ExportObjectsToGLtf(objects: list[bpy.types.Object], filename: str) -> None:
 	# Do the actual export, inherit the default settings specified above
 	export_settings                                         = gltf_settings
 	export_settings["filepath"]                             = file_path
+	export_settings["export_format"]						= ss_settings.export_format
 	export_settings["use_selection"]             		    = True
 	export_settings["export_draco_mesh_compression_enable"] = ss_settings.use_draco
 
