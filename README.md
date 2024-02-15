@@ -119,10 +119,10 @@ Known issues, limitations and caveats:
 
 ToDo:
 --
-[ ] Make all colelctions objects visible to avoid error with exporter
-[ ] Add a way for user to interrupt process
-[ ] Stop UI from locking up
-[ ] Allow user to export individual tiles
-[ ] Add batch-exporter
-[ ] Move tiles to own groups
-[ ] Parent tile objects to an empty for easier management?
+[ ] Make all colelctions objects visible to avoid error with exporter  
+[ ] Add a way for user to interrupt process  
+[ ] Stop UI from locking up  
+[ ] Allow user to export individual tiles  
+[ ] Add batch-exporter  
+[ ] Move tiles to own groups  
+[ ] Parent tile objects to an empty for easier management?  
