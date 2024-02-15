@@ -4,6 +4,9 @@ This is a Blender plugin for partitioning a collection into a grid of tiles and 
 
 It was written for use with the **Infinity Engine** in Decentraland - see the [Decentrally repository](https://github.com/decentraland-scenes/decentrally) for more information.
 
+
+![animation of a scene divind into grid pieces](./assets/demo.gif)
+
 ### Features
 
 * Export tiles to GLtf - supports Draco compression
@@ -63,8 +66,7 @@ How does it work
 
 The addon peforms roughly the following process when the "Export" button is clicked:
 
-* Work out bounding box for entire collection
-* Work out grid size and origin
+* Work out grid size and origin based on collection bounding box
 * Work out bounding boxes for all objects in collection
 * Loop through each grid tile and check for objects with intersecting bounding boxes (see [caveat #1](#known-issues-limitations-and-caveats))
 * Duplicate all objects in the tile, which:
@@ -84,13 +86,13 @@ Tileset JSON
 The addon exports a JSON structure describing the tileset to `tileset.json`.  
 It contains the following information:
 
-```json
+```js
 {
 	"name"           : "park",            // Name of the tileset (the collection name)
 	"tileset_size"   : [ 7,   6,   2   ], // The total size (in tiles) of the tileset
 	"tileset_origin" : [ 0.0, 0.0, 0.0 ], // The origin position of the tileset
 	"tile_dimensions": [ 8.0, 8.0, 4.0 ], // The size (in Blender units) of each tile
-    "tile_format"    : "GLTF_SEPARATE",   // glTF format, possible values are GLB, GLTF_SEPARATE
+	"tile_format"    : "GLTF_SEPARATE",   // glTF format, possible values are GLB, GLTF_SEPARATE
 	"tile_origin"    : "CENTER",          // Tile origin, possible values are CENTER, TILE_MIN, TILE_MAX
 	"tiles"          : [                  // A nested array of tiles 
 		[
@@ -101,16 +103,26 @@ It contains the following information:
 					"pos_center": [ 4.0, 4.0, 2.0 ], // The tile center 
 					"pos_min"   : [ 0.0, 0.0, 0.0 ], // The minimum bounds of this tile
 					"pos_max"   : [ 8.0, 8.0, 4.0 ]  // The maximum bounds of the tile
-				}, ... etc, for each tile
-            ].
-        ],
-    ]
+				}, // ... etc, for each tile
+			],
+		],
+	]
 }
 ```
 
 Known issues, limitations and caveats:
 --
 
-1) Tile object occupancy is determined by rectangular bounding boxes, this can result in tiles being incorrectly considered to be "occupied" and exported when they do not contain any mesh data
+1) Tile occupancy is determined by rectangular bounding boxes, this can result in tiles being incorrectly considered to be "occupied" and processed when they do not contain any mesh data. However, a tri-count is done after applying all modifiers and tiles with 0 tris are skipped. This *mostly* works, but sometimes can result in blank tiles.
 1) Does not support Curves
 1) Object visibility is ignored - if it's in the collection, it gets exported
+
+ToDo:
+--
+[ ] Make all colelctions objects visible to avoid error with exporter
+[ ] Add a way for user to interrupt process
+[ ] Stop UI from locking up
+[ ] Allow user to export individual tiles
+[ ] Add batch-exporter
+[ ] Move tiles to own groups
+[ ] Parent tile objects to an empty for easier management?
