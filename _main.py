@@ -30,7 +30,7 @@ from . booleans		import *
 from . boundingBox	import *
 from . collections	import DeleteCollection
 from . cutter		import CreateCutter, CreateCutterHelper
-from . export		import ExportCollectionToGLtf, ExportObjectsToGLtf, ExportTilesetToJSON
+from . export		import ExportCollectionToGLtf, ExportObjectsToGLtf, ExportDataToJSON, GetExportPath
 from . logging		import Log, LogReset
 from . tiles		import GetTilePositionMin, GetTilePositionMax, GetTilePositionCenter
 from . tilesets		import CreateTilesetFromCollection
@@ -126,7 +126,7 @@ def SliceCollection(col: bpy.types.Collection) -> str:
 	# Setup some counters
 	processed_count   = 0
 	skipped_count     = 0
-	skipped_tri_count =  0
+	skipped_tri_count = 0
 
 	# Build a dict of each object and their min/max bounds
 	col_object_bounds = GetCollectionObjectBounds(col)
@@ -232,11 +232,12 @@ def SliceCollection(col: bpy.types.Collection) -> str:
 	
 	# Cleanup after, remove the Bools used for cutting
 	for obj in col.all_objects:
-		#RemoveIntersectBooleans(obj, cutter)
+		RemoveIntersectBooleans(obj, cutter)
 		pass
 
 	# Export the tileset JSON
-	ExportTilesetToJSON(tileset_data)
+	file = GetExportPath(ss_settings.output_path) + "tileset.json"
+	ExportDataToJSON(tileset_data, file, ss_settings.minify_json)
 
 	Log("-----------------------------------------------------")
 	Log("Processed", processed_count, "tiles, skipped", skipped_count, "(0 tris:", skipped_tri_count, ")")
@@ -290,7 +291,8 @@ def DuplicateObjects(
 	
 	# Clone objects, apply their modifiers, set their origins
 	for index, obj in enumerate(objects):
-		time_object_start = time.time()
+		t = time.time
+		time_object_start = t
 
 		# Create a duplicate of the object
 		duplicate_obj      = obj.copy()
@@ -317,17 +319,15 @@ def DuplicateObjects(
 		# Convert to mesh and apply modifiers
 		bpy.ops.object.convert(target='MESH', keep_original=False)
 
-		#Log("    ", index, "convert took", time.time() - time_object_start)
-
 		# Update the objects origin to match the 3d cursor
 		bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
 
-		# Move the object to the world origin
-		duplicate_obj.location = (0, 0, 0)
-		#Log("    ", index, "update origin took", time.time() - time_object_start)
-
 		# Add the duplicate object to the list
 		duplicate_objects.append(duplicate_obj)
+	
+	# Move all the objects AFTER we have duplicated them, otherwise some origins are incorrect
+	#for obj in duplicate_objects:
+	#	obj.location = (0, 0, 0)
 	
 	
 	Log("DuplicateObjects took", time.time() - time_start, "for", len(objects), "objects")

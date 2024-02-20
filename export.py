@@ -13,7 +13,7 @@ from 	xml.etree.ElementTree 	import tostring
 # ╚═╝     ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
 #                                  
 
-def GetExportPath() -> str:
+def GetExportPath(path: str) -> str:
 	"""
 	Get the export path for the collection.
 
@@ -23,11 +23,8 @@ def GetExportPath() -> str:
 	Returns:
 	- str: The export path.
 	"""
-	# Get scene slicer settings
-	ss_settings = bpy.context.scene.ss_settings
-
 	# Set the export file name to match the collection name (minus the MATCH_STRING)
-	path = bpy.path.abspath(ss_settings.output_path)
+	path = bpy.path.abspath(path)
 	
 	# Ensure filepath doesn't have a trailing slash, as this causes a permission error
 	if path.endswith("/") or path.endswith("\\"):
@@ -47,23 +44,22 @@ def GetExportPath() -> str:
 # ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝        ╚════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 #
 
-def ExportTilesetToJSON(
-	tileset_data
+def ExportDataToJSON(
+	data,
+	file,
+	minify
 ):
 	"""
 	Export the supplied tileset_data to a file at the given output_path
 	"""
-	
-	# Get scene slicer settings
-	ss_settings = bpy.context.scene.ss_settings
 
-	if ss_settings.minify_json:
-		json_string = json.dumps(tileset_data)
+	if minify:
+		json_string = json.dumps(data)
 	else:
-		json_string = json.dumps(tileset_data, indent="\t")
+		json_string = json.dumps(data, indent="\t")
 
 	# Write the data object to an output JSON file
-	with open(GetExportPath() + "tileset.json", "w") as json_file:
+	with open(file, "w") as json_file:
 		json_file.write(json_string)
 
 
@@ -153,7 +149,11 @@ gltf_settings = {
 # ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝        ╚═════╝ ╚══════╝╚═╝   ╚═╝     
 #                                                                                      
 
-def ExportCollectionToGLtf(collection: bpy.types.Collection, filename: str) -> None:
+def ExportCollectionToGLtf(
+	collection  : bpy.types.Collection, 
+	filename    : str, 
+	reset_origin: bool = True
+) -> None:
 	"""
 	Export the specified collection to a GLTF file with the given filename.
 
@@ -188,7 +188,11 @@ def ExportCollectionToGLtf(collection: bpy.types.Collection, filename: str) -> N
 	bpy.ops.export_scene.gltf(**export_settings)
 
 
-def ExportObjectsToGLtf(objects: list[bpy.types.Object], filename: str) -> None:
+def ExportObjectsToGLtf(
+	objects     : list[bpy.types.Object], 
+	filename    : str,		
+	reset_origin: bool = True
+) -> None:
 	"""
 	Export the specified objects to a GLTF file with the given filename.
 
@@ -204,14 +208,22 @@ def ExportObjectsToGLtf(objects: list[bpy.types.Object], filename: str) -> None:
 	ss_settings = bpy.context.scene.ss_settings
 
 	# Work out the destination name
-	file_path = str((GetExportPath() + filename + '.gltf'))
+	file_path = str((GetExportPath(ss_settings.output_path) + filename + '.gltf'))
 
 	# Deselect all the objects
 	bpy.ops.object.select_all(action='DESELECT')
 
+	# If we need to reset_origin, store the current locations and move the object to world origin
+	object_locations = {}
+	if reset_origin:
+		for obj in objects:
+			object_locations[obj] = obj.location.copy()
+
 	# Select all the objects we want to export
 	for obj in objects:
 		obj.select_set(True)
+		if reset_origin:
+			obj.location = (0,0,0)
 
 	# Do the actual export, inherit the default settings specified above
 	export_settings                                         = gltf_settings
@@ -221,3 +233,9 @@ def ExportObjectsToGLtf(objects: list[bpy.types.Object], filename: str) -> None:
 	export_settings["export_draco_mesh_compression_enable"] = ss_settings.use_draco
 
 	bpy.ops.export_scene.gltf(**export_settings)
+
+	# If we reset the origin for export, move the object back to it's original location
+	if reset_origin:
+		pass
+		for obj, location in object_locations.items():
+			obj.location          = location
