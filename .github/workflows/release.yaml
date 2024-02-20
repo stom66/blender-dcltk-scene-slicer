@@ -10,19 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@master
 
-    - name: Zip files
-      run: |
-        find . -name '*.py' -or -name '*.md' | xargs zip -r blender-dcltoolkit-scene-slicer.zip
-
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Archive Release
+      uses: thedoctor0/zip-release@0.7.5
       with:
-        tag_name: ${{ github.sha }}
-        release_name: Release ${{ github.sha }}
-        files: blender-dcltoolkit-scene-slicer.zip
+        type: 'zip'
+        directory: .
+        path: 'releases'
+        filename: 'blender-dcltoolkit-scene-slicer.zip'
+        exclusions: '*.* /*assets/* /*releases/* /*test-files/* .editorconfig .gitignore .prettierrc create-release.sh'
+
+    - name: Upload Release
+      uses: ncipollo/release-action@v1.12.0
+      with:
+        artifacts: 'blender-dcltoolkit-scene-slicer.zip'
+        token: ${{ secrets.GITHUB_TOKEN }}
