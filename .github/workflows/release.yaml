@@ -16,7 +16,6 @@ jobs:
       uses: thedoctor0/zip-release@0.7.5
       with:
         type: 'zip'
-        directory: .
         path: 'releases'
         filename: 'blender-dcltoolkit-scene-slicer.zip'
         exclusions: '/*assets/* /*releases/* /*test-files/* .editorconfig .gitignore .prettierrc create-release.sh'
