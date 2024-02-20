@@ -2,8 +2,8 @@ name: Create Release
 
 on:
   push:
-    branches:
-      - master
+    tags:
+    - '*'
 
 jobs:
   build:
@@ -16,8 +16,8 @@ jobs:
       uses: thedoctor0/zip-release@0.7.5
       with:
         type: 'zip'
-        filename: 'release'
-        exclusions: ''
+        filename: 'blender-dcltoolkit-scene-slicer.zip'
+        exclusions: '/*assets/* /*releases/* /*test-files/* .editorconfig .gitignore .prettierrc create-release.sh'
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
