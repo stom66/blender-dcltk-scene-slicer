@@ -1,0 +1,28 @@
+name: Create Release
+
+on:
+	push:
+		branches:
+			- main  # Change this to your main branch name
+
+jobs:
+	build:
+		runs-on: ubuntu-latest
+
+		steps:
+		- name: Checkout code
+			uses: actions/checkout@v2
+
+		- name: Zip files
+			run: |
+				find . -name '*.py' -or -name '*.md' | xargs zip -r blender-dcltoolkit-scene-slicer.zip
+
+		- name: Create Release
+			id: create_release
+			uses: actions/create-release@v1
+			env:
+				GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+			with:
+				tag_name: ${{ github.sha }}
+				release_name: Release ${{ github.sha }}
+				files: blender-dcltoolkit-scene-slicer.zip
