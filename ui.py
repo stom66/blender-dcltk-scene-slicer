@@ -1,20 +1,20 @@
 import bpy
 
-
 from . _main import Main
 
+from . cannonColliders import CC_Main
 
-# ██╗   ██╗███████╗███████╗██████╗     ██╗███╗   ██╗████████╗███████╗██████╗ ███████╗ █████╗  ██████╗███████╗
-# ██║   ██║██╔════╝██╔════╝██╔══██╗    ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗██╔════╝██╔══██╗██╔════╝██╔════╝
-# ██║   ██║███████╗█████╗  ██████╔╝    ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝█████╗  ███████║██║     █████╗  
-# ██║   ██║╚════██║██╔══╝  ██╔══██╗    ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██╔══╝  ██╔══██║██║     ██╔══╝  
-# ╚██████╔╝███████║███████╗██║  ██║    ██║██║ ╚████║   ██║   ███████╗██║  ██║██║     ██║  ██║╚██████╗███████╗
-#  ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝
-#
+# ███████╗███████╗    ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗
+# ██╔════╝██╔════╝    ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝
+# ███████╗███████╗    █████╗   ╚███╔╝ ██████╔╝██║   ██║██████╔╝   ██║   
+# ╚════██║╚════██║    ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║   
+# ███████║███████║    ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   
+# ╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
+#                                                                       
 
 # UI Main button for exporting
 class VIEW3D_PT_SceneSlicer_Export(bpy.types.Operator):
-	bl_idname  = "scene.slice_and_export"
+	bl_idname  = "ss.btn_slice_and_export"
 	bl_label   = "Main function"
 	bl_options = {'REGISTER', 'UNDO'}
 
@@ -24,8 +24,8 @@ class VIEW3D_PT_SceneSlicer_Export(bpy.types.Operator):
 		return result
 
 # UI button to refresh collection dropdown
-class SCENE_OT_RefreshCollections(bpy.types.Operator):
-	bl_idname  = "scene.refresh_collections"
+class SCENE_OT_SceneSlicer_RefreshCollections(bpy.types.Operator):
+	bl_idname  = "ss.btn_refresh_collections"
 	bl_label   = "Refresh Collections"
 	bl_options = {'REGISTER'}
 
@@ -50,7 +50,7 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "export_collection", text="")
 		col = row.column(align=True)
-		col.operator("scene.refresh_collections", text="", icon='FILE_REFRESH')
+		col.operator("ss.refresh_collections", text="", icon='FILE_REFRESH')
 
 		# Output path
 		row = layout.row()
@@ -68,6 +68,16 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 		row = layout.row()
 		row.operator(VIEW3D_PT_SceneSlicer_Export.bl_idname, text="Slice and Export", icon="FILE_VOLUME")
 
+
+
+# ███████╗███████╗    ███████╗███████╗████████╗████████╗██╗███╗   ██╗ ██████╗ ███████╗
+# ██╔════╝██╔════╝    ██╔════╝██╔════╝╚══██╔══╝╚══██╔══╝██║████╗  ██║██╔════╝ ██╔════╝
+# ███████╗███████╗    ███████╗█████╗     ██║      ██║   ██║██╔██╗ ██║██║  ███╗███████╗
+# ╚════██║╚════██║    ╚════██║██╔══╝     ██║      ██║   ██║██║╚██╗██║██║   ██║╚════██║
+# ███████║███████║    ███████║███████╗   ██║      ██║   ██║██║ ╚████║╚██████╔╝███████║
+# ╚══════╝╚══════╝    ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝
+#              
+																			   
 class VIEW3D_PT_SceneSlicer_Options(bpy.types.Panel):
 	bl_label       = 'Scene Slicer: Advanced Settings'
 	bl_category    = 'DCL Toolkit'
@@ -129,3 +139,67 @@ class VIEW3D_PT_SceneSlicer_Options(bpy.types.Panel):
 		row.label(text="Tile origin")
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "export_origin", text="")
+
+
+
+#  ██████╗ █████╗ ███╗   ██╗███╗   ██╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ██╗     ██╗     ██╗██████╗ ███████╗██████╗ ███████╗
+# ██╔════╝██╔══██╗████╗  ██║████╗  ██║██╔═══██╗████╗  ██║    ██╔════╝██╔═══██╗██║     ██║     ██║██╔══██╗██╔════╝██╔══██╗██╔════╝
+# ██║     ███████║██╔██╗ ██║██╔██╗ ██║██║   ██║██╔██╗ ██║    ██║     ██║   ██║██║     ██║     ██║██║  ██║█████╗  ██████╔╝███████╗
+# ██║     ██╔══██║██║╚██╗██║██║╚██╗██║██║   ██║██║╚██╗██║    ██║     ██║   ██║██║     ██║     ██║██║  ██║██╔══╝  ██╔══██╗╚════██║
+# ╚██████╗██║  ██║██║ ╚████║██║ ╚████║╚██████╔╝██║ ╚████║    ╚██████╗╚██████╔╝███████╗███████╗██║██████╔╝███████╗██║  ██║███████║
+#  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚══════╝╚══════╝╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝
+#
+	
+
+
+# UI button to refresh collection dropdown
+class SCENE_OT_CannonColliders_RefreshCollections(bpy.types.Operator):
+	bl_idname  = "cc.btn_refresh_collections"
+	bl_label   = "Refresh Collections"
+	bl_options = {'REGISTER'}
+
+	def execute(self, context):
+		# Trigger the update_collection_items method
+		context.scene.ss_settings.refresh_collections(context)
+		return {'FINISHED'}
+		
+
+# UI Main button for exporting
+class VIEW3D_PT_CannonColliders_Export(bpy.types.Operator):
+	bl_idname  = "cc.btn_export"
+	bl_label   = "Main function"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	def execute(self, context):
+		self.report({'INFO'}, 'Exporting...')
+		result = bpy.ops.cc.export()
+		return result
+	
+
+class VIEW3D_PT_CannonColliders_Main(bpy.types.Panel):
+	bl_label       = 'Cannon Colliders: Export'
+	bl_category    = 'DCL Toolkit'
+	bl_region_type = 'UI'
+	bl_space_type  = 'VIEW_3D'
+	bl_options     = { 'DEFAULT_CLOSED' }
+
+	def draw(self, context):
+		layout = self.layout
+
+		# Collection dropdown
+		row = layout.row()
+		row.label(text="Export collection")
+		col = row.column(align=True)
+		col.prop(context.scene.cc_settings, "export_collection", text="")
+
+		col = row.column(align=True)
+		col.operator("cc.refresh_collections", text="", icon='FILE_REFRESH')
+
+		# Output path
+		row = layout.row()
+		row.label(text="Output path:")
+		row.prop(context.scene.cc_settings, "output_file", text="")
+
+		# Btn: Export
+		row = layout.row()
+		row.operator(VIEW3D_PT_CannonColliders_Export.bl_idname, text="Export", icon="FILE_VOLUME")
