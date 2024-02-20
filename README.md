@@ -15,7 +15,9 @@ It was written for use with the **Infinity Engine** in Decentraland - see the [D
 
 Installation
 --
-Go to `Edit > Preferences > Addons > Install` and either select .zip file or the unzipped `main.py` file.
+Go to `Edit > Preferences > Addons > Install` and select .zip file .
+
+You can slo clone this repo to your addons folder.
 
 Once installed you can find it in `3D Viewport -> Sidebar -> Scene Slicer`
 
@@ -99,7 +101,7 @@ It contains the following information:
 			[
 				{ 
 					"index"     : [ 0, 0, 0 ],       // The index of this tile in the tiles array
-					"src"       : "tile_0_0_0",      // The gltf filename
+					"src"       : "tile_0_0_0",      // The gltf filename. File extension derived from tile_format 
 					"pos_center": [ 4.0, 4.0, 2.0 ], // The tile center 
 					"pos_min"   : [ 0.0, 0.0, 0.0 ], // The minimum bounds of this tile
 					"pos_max"   : [ 8.0, 8.0, 4.0 ]  // The maximum bounds of the tile
@@ -119,6 +121,7 @@ Known issues, limitations and caveats:
 
 ToDo:
 --
+[ ] Add option to flip tileset.json YZ on export  
 [ ] Make all colelctions objects visible to avoid error with exporter  
 [ ] Add a way for user to interrupt process  
 [ ] Stop UI from locking up  
