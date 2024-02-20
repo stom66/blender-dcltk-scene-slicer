@@ -9,6 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions: write-all
+    
     steps:
     - uses: actions/checkout@master
 
@@ -17,7 +19,7 @@ jobs:
       with:
         type: 'zip'
         filename: 'blender-dcltoolkit-scene-slicer.zip'
-        exclusions: '/*assets/* /*releases/* /*test-files/* .editorconfig .gitignore .prettierrc create-release.sh'
+        exclusions: '/*.github/* /*.git/* /*assets/* /*releases/* /*test-files/* .editorconfig .gitignore .prettierrc create-release.sh'
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
