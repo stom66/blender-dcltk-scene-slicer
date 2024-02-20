@@ -19,7 +19,7 @@ jobs:
         directory: .
         path: 'releases'
         filename: 'blender-dcltoolkit-scene-slicer.zip'
-        exclusions: '*.* /*assets/* /*releases/* /*test-files/* .editorconfig .gitignore .prettierrc create-release.sh'
+        exclusions: '/*assets/* /*releases/* /*test-files/* .editorconfig .gitignore .prettierrc create-release.sh'
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
