@@ -30,8 +30,6 @@ from . _main 		import *
 from . _settings 	import *
 from . ui 			import *
 
-from . cannonColliders	import *
-
 
 
 # ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗
@@ -52,8 +50,6 @@ def register():
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Main)
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Export)
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Options)
-
-	
 
 def unregister():
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Options)

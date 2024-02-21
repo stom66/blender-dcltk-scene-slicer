@@ -28,7 +28,7 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 
 	# Output path
 	output_path: bpy.props.StringProperty(
-		name        = "Output path",
+		name        = "Output folder",
 		description = "Choose a folder to export to",
 		default     = "//tileset/",
 		subtype     = 'FILE_PATH'
@@ -109,36 +109,3 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 			("TILE_MAX", "Tile Max", "Maximum coordinates of the tile"),
 		],
 	)  # type: ignore
-
-
-
-#  ██████╗ █████╗ ███╗   ██╗███╗   ██╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ██╗     ██╗     ██╗██████╗ ███████╗██████╗ ███████╗
-# ██╔════╝██╔══██╗████╗  ██║████╗  ██║██╔═══██╗████╗  ██║    ██╔════╝██╔═══██╗██║     ██║     ██║██╔══██╗██╔════╝██╔══██╗██╔════╝
-# ██║     ███████║██╔██╗ ██║██╔██╗ ██║██║   ██║██╔██╗ ██║    ██║     ██║   ██║██║     ██║     ██║██║  ██║█████╗  ██████╔╝███████╗
-# ██║     ██╔══██║██║╚██╗██║██║╚██╗██║██║   ██║██║╚██╗██║    ██║     ██║   ██║██║     ██║     ██║██║  ██║██╔══╝  ██╔══██╗╚════██║
-# ╚██████╗██║  ██║██║ ╚████║██║ ╚████║╚██████╔╝██║ ╚████║    ╚██████╗╚██████╔╝███████╗███████╗██║██████╔╝███████╗██║  ██║███████║
-#  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚══════╝╚══════╝╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝
-#                                                                                                                                
-class CannonColliderSettings(bpy.types.PropertyGroup):
-	
-	def refresh_collections(self, context):
-		items = [(col.name, col.name, col.name) for col in bpy.context.scene.collection.children if col.name != "Cutters"]
-		return items
-
-	# Collection to export dropdown
-	export_collection: bpy.props.EnumProperty(
-		name        = "Export Collection",
-		description = "Choose a collection to convert and export",
-		items       = refresh_collections,
-		default 	= None,
-		#update      = refresh_collections,
-		attr        = "export_collection"
-	)  # type: ignore
-
-	# Output path
-	output_file: bpy.props.StringProperty(
-		name        = "Output path",
-		description = "Choose a folder to export to",
-		default     = "//colliders.json",
-		subtype     = 'FILE_PATH'
-	) # type: ignore
