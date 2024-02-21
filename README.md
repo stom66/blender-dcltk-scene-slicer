@@ -1,6 +1,6 @@
 # Blender Decentraland Toolkit: Scene Slicer
 
-This is a Blender plugin for partitioning a collection into a grid of tiles and exporting each tile as a glTF.
+This is a Blender (3.6 or higher) plugin for partitioning a collection into a grid of tiles and exporting each tile as a glTF.
 
 It was written for use with the **Infinity Engine** in Decentraland - see the [Decentrally repository](https://github.com/decentraland-scenes/decentrally) for more information.
 
