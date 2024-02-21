@@ -24,7 +24,7 @@ jobs:
         cp *.md release_temp/dcltoolkit-scene-slicer/
         cp *.py release_temp/dcltoolkit-scene-slicer/
         cd release_temp
-        zip -r "../blender-dcltoolkit-scene-slicer-${{ env.TAG }}" dcltoolkit-scene-slicer
+        zip -r "../dcltoolkit-scene-slicer-${{ env.TAG }}" dcltoolkit-scene-slicer
         cd ..
         rm -rf release_temp
       shell: bash
