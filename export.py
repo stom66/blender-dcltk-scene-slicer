@@ -29,8 +29,6 @@ def GetExportPath(path: str) -> str:
 	# Ensure filepath doesn't have a trailing slash, as this causes a permission error
 	if path.endswith("/") or path.endswith("\\"):
 		path = path[:-1]
-	
-	path += '\\'
 
 	return path
 
