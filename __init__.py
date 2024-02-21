@@ -45,7 +45,7 @@ from . cannonColliders	import *
 def register():
 	# Register settings class
 	bpy.utils.register_class(SceneSlicerSettings)
-	bpy.utils.register_class(CannonColliderSettings)
+	bpy.types.Scene.ss_settings = bpy.props.PointerProperty(type=SceneSlicerSettings)
 	
 	# Register various UI component classes
 	bpy.utils.register_class(SCENE_OT_SceneSlicer_RefreshCollections)
@@ -53,22 +53,9 @@ def register():
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Export)
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Options)
 
-	bpy.utils.register_class(EXPORT_OT_CannonColliders)
-	bpy.utils.register_class(SCENE_OT_CannonColliders_RefreshCollections)
-	bpy.utils.register_class(VIEW3D_PT_CannonColliders_Export)
-	bpy.utils.register_class(VIEW3D_PT_CannonColliders_Main)
-
-	bpy.types.Scene.ss_settings = bpy.props.PointerProperty(type=SceneSlicerSettings)
-	bpy.types.Scene.cc_settings = bpy.props.PointerProperty(type=CannonColliderSettings)
 	
 
 def unregister():
-	# Unregister various UI component classes
-	bpy.utils.unregister_class(VIEW3D_PT_CannonColliders_Main)
-	bpy.utils.unregister_class(VIEW3D_PT_CannonColliders_Export)
-	bpy.utils.unregister_class(SCENE_OT_CannonColliders_RefreshCollections)
-	bpy.utils.unregister_class(EXPORT_OT_CannonColliders)
-
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Options)
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Export)
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Main)
@@ -76,7 +63,4 @@ def unregister():
 
 	# Unregister settings class
 	bpy.utils.unregister_class(SceneSlicerSettings)
-	bpy.utils.unregister_class(CannonColliderSettings)
-
 	del bpy.types.Scene.ss_settings
-	del bpy.types.Scene.cc_settings

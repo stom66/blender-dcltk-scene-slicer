@@ -1,18 +1,9 @@
 # WhatDo:
 #
 # This script is the main parts of the scene slicer and exporter.
-#                       
-# How to use:
-# 	Locate settings panel in 3D Viewport -> Sidebar -> Scene Slicer
-# 	Choose collection to export from dropdown
-# 	Set required grid size
-# 	Select suitable folder for output
-# 	Click "Slice and Export" button
 #
-# Notes:
-#	* Does NOT support Curves, as they don't support bools
-#	* Object visibility is ignored - if it's in the collection, it gets exported
-#
+
+
 
 # ██╗███╗   ███╗██████╗  ██████╗ ██████╗ ████████╗███████╗
 # ██║████╗ ████║██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝
@@ -236,7 +227,7 @@ def SliceCollection(col: bpy.types.Collection) -> str:
 		pass
 
 	# Export the tileset JSON
-	file = GetExportPath(ss_settings.output_path) + "tileset.json"
+	file = GetExportPath(ss_settings.output_path) + "\\tileset.json"
 	ExportDataToJSON(tileset_data, file, ss_settings.minify_json)
 
 	Log("-----------------------------------------------------")
