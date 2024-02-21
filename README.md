@@ -34,7 +34,7 @@ How to use
 
 The following options are available in the Scene Slicer panel: 
 
-#### Collection to export
+#### Export collection
 
 * Choose the collection of objects you wish to export
 * Click the refresh symbol if your collection is not in the dropdown
@@ -58,9 +58,13 @@ The following options are available in the Scene Slicer panel:
 
 Some additonal options are available in the "Advanced Settings" panel.
 
-* Toggle minification of the JSON output
-* Toggle the use of Draco compression on glTF exports
-* Tile origin - set export origin position to use tile min position, tile center, or tile max position
+* **Bool solver method**: choose between Exact or Fast. Exact has better results but slower performance.
+* **Colliders: skip export** - if enabled, ignore any meshes with `_collider` in the name
+* **JSON minify**: significantly reduces JSON export file size. Disable for dev; enable for production.
+* **glTF: draco compression** - Toggle the use of Draco compression on glTF exports. Note that most 3D viewers do not support Draco. Disable for dev; enable for production.
+* **glTF: export format** - Choose between GLB or GLTF Separate. Recommend GLTF as it supports externalised textures.
+* **glTF: filename prefix** - specify naming convention for output files.
+* **glTF: tile origin** - set export origin position to use tile min position, tile center, or tile max position
 
 
 How does it work
