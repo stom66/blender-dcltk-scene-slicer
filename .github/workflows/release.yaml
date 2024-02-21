@@ -24,7 +24,7 @@ jobs:
         cp *.md release_temp/dcltoolkit-scene-slicer/
         cp *.py release_temp/dcltoolkit-scene-slicer/
         cd release_temp
-        zip -r "../blender-dcltoolkit-scene-slicer-${{ TAG }}" dcltoolkit-scene-slicer
+        zip -r "../blender-dcltoolkit-scene-slicer-${{ env.TAG }}" dcltoolkit-scene-slicer
         cd ..
         rm -rf release_temp
       shell: bash
@@ -32,5 +32,5 @@ jobs:
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
       with:
-        artifacts: "dcltoolkit-scene-slicer-${{ TAG }}.zip"
+        artifacts: "dcltoolkit-scene-slicer-${{ env.TAG }}.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
