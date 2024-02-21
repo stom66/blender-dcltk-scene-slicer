@@ -14,15 +14,23 @@ jobs:
     steps:
     - uses: actions/checkout@master
 
-    - name: Archive Release
-      uses: thedoctor0/zip-release@0.7.5
-      with:
-        type: 'zip'
-        filename: 'blender-dcltoolkit-scene-slicer.zip'
-        exclusions: '/*.github/* /*.git/* /*assets/* /*releases/* /*test-files/* .editorconfig .gitignore .prettierrc create-release.sh'
+    - name: Get Tag
+      id: tag
+      run: echo "TAG=$(basename ${{ github.ref }})" >> $GITHUB_ENV
+
+    - name: Create Release Archive
+      run: |
+        mkdir -p release_temp/dcltoolkit-scene-slicer
+        cp *.md release_temp/dcltoolkit-scene-slicer/
+        cp *.py release_temp/dcltoolkit-scene-slicer/
+        cd release_temp
+        zip -r ../blender-dcltoolkit-scene-slicer-$TAG.zip dcltoolkit-scene-slicer
+        cd ..
+        rm -rf release_temp
+      shell: bash
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
       with:
-        artifacts: 'blender-dcltoolkit-scene-slicer.zip'
+        artifacts: 'dcltoolkit-scene-slicer-$TAG.zip'
         token: ${{ secrets.GITHUB_TOKEN }}
