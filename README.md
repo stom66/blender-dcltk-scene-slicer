@@ -17,14 +17,14 @@ Installation
 --
 Go to `Edit > Preferences > Addons > Install` and select .zip file .
 
-You can slo clone this repo to your addons folder.
+You can also clone this repo to your addons folder.
 
-Once installed you can find it in `3D Viewport -> Sidebar -> Scene Slicer`
+Once installed you can find it in `3D Viewport -> Sidebar -> DCL Toolkit -> Scene Slicer`
 
 How to use
 --
 * Place your scene in a collection
-* In the **Scene Slicer** sidebar panel: 
+* In the **"DCL Toolkit"** sidebar panel, under **"Scene Slicer: Export"**: 
     * Choose your collection in the dropdown 
     * Configure output path (see below)
     * Configure grid size (see below)
@@ -122,7 +122,7 @@ Known issues, limitations and caveats:
 ToDo:
 --
 [ ] Add option to flip tileset.json YZ on export  
-[ ] Make all colelctions objects visible to avoid error with exporter  
+[ ] Make all collections objects visible to avoid error with exporter  
 [ ] Add a way for user to interrupt process  
 [ ] Stop UI from locking up  
 [ ] Allow user to export individual tiles  
