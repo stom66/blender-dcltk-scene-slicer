@@ -15,11 +15,14 @@ It was written for use with the **Infinity Engine** in Decentraland - see the [D
 
 Installation
 --
-Go to `Edit > Preferences > Addons > Install` and select .zip file .
+* Download the latest version from the [Releases](/releases) page
+* In Blender, go to `Edit > Preferences > Addons > Install`
+* Select the .zip file
+* Once installed ensure the plugin is activated (ticked) in the list of Addons
 
-You can also clone this repo to your addons folder.
+The plugin panel can be found in `3D Viewport -> Sidebar -> DCL Toolkit -> Scene Slicer`
 
-Once installed you can find it in `3D Viewport -> Sidebar -> DCL Toolkit -> Scene Slicer`
+![blender ui panel location](./assets/blender-ui-location.png)
 
 How to use
 --
@@ -89,30 +92,29 @@ Tileset JSON
 
 > **NOTE:** Positions and indexes are in XYZ order, with Z representing the vertical (up) axis
 
-The addon exports a JSON structure describing the tileset to `tileset.json`.  
-It contains the following information:
+The addon exports a JSON structure describing the tileset to `tileset.json`. It contains the following information:
 
 ```js
 {
-	"name"           : "park",            // Name of the tileset (the collection name)
-	"tileset_size"   : [ 7,   6,   2   ], // The total size (in tiles) of the tileset
-	"tileset_origin" : [ 0.0, 0.0, 0.0 ], // The origin position of the tileset
-	"tile_dimensions": [ 8.0, 8.0, 4.0 ], // The size (in Blender units) of each tile
-	"tile_format"    : "GLTF_SEPARATE",   // glTF format, possible values are GLB, GLTF_SEPARATE
-	"tile_origin"    : "CENTER",          // Tile origin, possible values are CENTER, TILE_MIN, TILE_MAX
-	"tiles"          : [                  // A nested array of tiles 
-		[
-			[
-				{ 
-					"index"     : [ 0, 0, 0 ],       // The index of this tile in the tiles array
-					"src"       : "tile_0_0_0",      // The gltf filename. File extension derived from tile_format 
-					"pos_center": [ 4.0, 4.0, 2.0 ], // The tile center 
-					"pos_min"   : [ 0.0, 0.0, 0.0 ], // The minimum bounds of this tile
-					"pos_max"   : [ 8.0, 8.0, 4.0 ]  // The maximum bounds of the tile
-				}, // ... etc, for each tile
-			],
-		],
-	]
+    "name"           : "park",            // Name of the tileset (the collection name)
+    "tileset_size"   : [ 7,   6,   2   ], // The total size (in tiles) of the tileset
+    "tileset_origin" : [ 0.0, 0.0, 0.0 ], // The origin position of the tileset
+    "tile_dimensions": [ 8.0, 8.0, 4.0 ], // The size (in Blender units) of each tile
+    "tile_format"    : "GLTF_SEPARATE",   // glTF format, possible values are GLB, GLTF_SEPARATE
+    "tile_origin"    : "CENTER",          // Possible values are CENTER, TILE_MIN, TILE_MAX
+    "tiles"          : [                  // A nested array of tiles 
+        [
+            [
+                { 
+                    "index"     : [ 0, 0, 0 ],       // The index of this tile in the tiles array
+                    "src"       : "tile_0_0_0",      // glTF filename, extension set by tile_format 
+                    "pos_center": [ 4.0, 4.0, 2.0 ], // The tile center 
+                    "pos_min"   : [ 0.0, 0.0, 0.0 ], // The minimum bounds of this tile
+                    "pos_max"   : [ 8.0, 8.0, 4.0 ]  // The maximum bounds of the tile
+                }, // ... etc, for each tile
+            ],
+        ],
+    ]
 }
 ```
 
