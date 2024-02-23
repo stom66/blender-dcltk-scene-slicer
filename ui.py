@@ -50,7 +50,7 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "export_collection", text="")
 		col = row.column(align=True)
-		col.operator("ss.refresh_collections", text="", icon='FILE_REFRESH')
+		col.operator("ss.btn_refresh_collections", text="", icon='FILE_REFRESH')
 
 		# Output path
 		row = layout.row()
