@@ -6,11 +6,7 @@ __pycache__/
 *.py[cod]
 
 # Ignore specific file types in test-files directory
-test-files/*.gltf
-test-files/*.json
+test-files/*
 
-# Ignore the tileset folder within the test-files directory
-test-files/tileset/
-test-files/animation/
-test-files/textures/
-test-files/park.glb
+!test-files/test-scene.blend
+!test-files/ColorGrid.png
