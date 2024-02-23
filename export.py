@@ -30,7 +30,7 @@ def GetExportPath(file: str = "") -> str:
 	# Ensure the output folder exists
 	try:
 		# Ensure filepath exists, create it if it doesn't
-		os.makedirs(path)
+		os.makedirs(os.path.dirname(path))
 	except FileExistsError:
 		pass  # The directory already exists, no need to create
 
