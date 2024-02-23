@@ -41,33 +41,32 @@ The following options are available in the Scene Slicer panel:
 
 * Choose the collection of objects you wish to export
 * Click the refresh symbol if your collection is not in the dropdown
-* All objects wihin the colelction will be exported - visbility is ignored
+* All objects within the collection will be exported - visbility is ignored
 
 #### Output path
-* Blender uses `//` for relative paths. 
-* Use `//tiles` to output to a folder named `tiles` in current file location. 
-* The folder must exist.
+* Blender uses `//` for relative paths
+* Use `//tiles` to output to a folder named `tiles` in current file location
 
 
 #### Grid size
 
-* Suggest using 1/4 parcel size or smaller for good results.
-* Grid size must be less than 1/2 your total parcel size. 
-* Smaller grid sizes will take longer to process as they contain more tiles. 
-* Larger grid sizes will result in the tile being unloaded closer to the player.
-* Consider having a larger Z axis (vertical)
+* Suggest using 1/4 parcel size or smaller for good results
+* Grid size must be less than 1/2 your total parcel size
+* Smaller grid sizes will take longer to process as they contain more tiles
+* Larger grid sizes will result in the tile being unloaded closer to the player
+* Consider having a larger vertical axis
 
 ### Advanced settings
 
 Some additonal options are available in the "Advanced Settings" panel.
 
-* **Bool solver method**: choose between Exact or Fast. Exact has better results but slower performance.
-* **Colliders: skip export** - if enabled, ignore any meshes with `_collider` in the name
-* **JSON minify**: significantly reduces JSON export file size. Disable for dev; enable for production.
+* **Bool solver method**: Choose between Exact or Fast - Exact has better results but slower performance.
+* **Colliders: skip export** - If enabled, ignore any meshes with `_collider` in the name.
+* **JSON minify**: Significantly reduces JSON export file size - disable for dev; enable for production.
 * **glTF: draco compression** - Toggle the use of Draco compression on glTF exports. Note that most 3D viewers do not support Draco. Disable for dev; enable for production.
 * **glTF: export format** - Choose between GLB or GLTF Separate. Recommend GLTF as it supports externalised textures.
-* **glTF: filename prefix** - specify naming convention for output files.
-* **glTF: tile origin** - set export origin position to use tile min position, tile center, or tile max position
+* **glTF: filename prefix** - Specify naming convention for output files.
+* **glTF: tile origin** - Set export origin position to use tile min position, tile center, or tile max position.
 
 
 How does it work
@@ -75,8 +74,8 @@ How does it work
 
 The addon peforms roughly the following process when the "Export" button is clicked:
 
-* Work out grid size and origin based on collection bounding box
 * Work out bounding boxes for all objects in collection
+* Work out grid size and origin based on overall collection bounding box
 * Loop through each grid tile and check for objects with intersecting bounding boxes (see [caveat #1](#known-issues-limitations-and-caveats))
 * Duplicate all objects in the tile, which:
     * Adds an intersection boolean to limit the geometry to the tile bounds
