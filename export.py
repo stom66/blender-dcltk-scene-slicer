@@ -27,8 +27,16 @@ def GetExportPath(file: str = "") -> str:
 	# Get the export path based on the current settings value
 	path = bpy.path.abspath(ss_settings.output_path)
 
+	# Ensure the output folder exists
+	try:
+		# Ensure filepath exists, create it if it doesn't
+		os.makedirs(path)
+	except FileExistsError:
+		pass  # The directory already exists, no need to create
+
+	# If a filename was specified, join it
 	if file:
-		path = os.path.join(path, "tileset.json")
+		path = os.path.join(path, file)
 
 	path = os.path.normpath(path)
 	
