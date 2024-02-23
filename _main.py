@@ -15,6 +15,7 @@
 
 import bpy
 import time
+import os
 
 #from . _settings 	import *
 from . booleans		import *
@@ -227,8 +228,9 @@ def SliceCollection(col: bpy.types.Collection) -> str:
 		pass
 
 	# Export the tileset JSON
-	file = GetExportPath(ss_settings.output_path) + "\\tileset.json"
-	ExportDataToJSON(tileset_data, file, ss_settings.minify_json)
+	file_path = GetExportPath("tileset.json")
+
+	ExportDataToJSON(tileset_data, file_path, ss_settings.minify_json)
 
 	Log("-----------------------------------------------------")
 	Log("Processed", processed_count, "tiles, skipped", skipped_count, "(0 tris:", skipped_tri_count, ")")

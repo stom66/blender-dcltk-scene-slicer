@@ -1,4 +1,5 @@
 import 	bpy
+import 	os
 import 	json
 from 	collections 			import defaultdict
 from 	xml.etree.ElementTree 	import tostring
@@ -13,22 +14,27 @@ from 	xml.etree.ElementTree 	import tostring
 # ╚═╝     ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
 #                                  
 
-def GetExportPath(path: str) -> str:
+def GetExportPath(file: str = "") -> str:
 	"""
 	Get the export path for the collection.
-
-	Args:
-	- output_path (str): The output path for the collection.
 
 	Returns:
 	- str: The export path.
 	"""
-	# Set the export file name to match the collection name (minus the MATCH_STRING)
-	path = bpy.path.abspath(path)
+	# Get scene slicer settings
+	ss_settings = bpy.context.scene.ss_settings
+
+	# Get the export path based on the current settings value
+	path = bpy.path.abspath(ss_settings.output_path)
+
+	if file:
+		path = os.path.join(path, "tileset.json")
+
+	path = os.path.normpath(path)
 	
 	# Ensure filepath doesn't have a trailing slash, as this causes a permission error
-	if path.endswith("/") or path.endswith("\\"):
-		path = path[:-1]
+	#if path.endswith("/") or path.endswith("\\"):
+	#	path = path[:-1]
 
 	return path
 
@@ -167,7 +173,7 @@ def ExportCollectionToGLtf(
 	ss_settings = bpy.context.scene.ss_settings
 
 	# Work out the destination name
-	file_path = str((GetExportPath() + filename + '.gltf'))
+	file_path = GetExportPath(filename)
 
 	# Set the collection as the active collection
 	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children[collection.name]
@@ -206,7 +212,7 @@ def ExportObjectsToGLtf(
 	ss_settings = bpy.context.scene.ss_settings
 
 	# Work out the destination name
-	file_path = str((GetExportPath(ss_settings.output_path) + filename + '.gltf'))
+	file_path = GetExportPath(filename)
 
 	# Deselect all the objects
 	bpy.ops.object.select_all(action='DESELECT')
