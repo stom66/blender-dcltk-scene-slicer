@@ -25,7 +25,7 @@ from . cutter		import CreateCutter, CreateCutterHelper
 from . export		import ExportCollectionToGLtf, ExportObjectsToGLtf, ExportDataToJSON, GetExportPath
 from . logging		import Log, LogReset
 from . tiles		import GetTilePositionMin, GetTilePositionMax, GetTilePositionCenter
-from . tilesets		import CreateTilesetFromCollection
+from . tilesets		import CreateTilesetFromCollection, SwizzleTilesetData
 from . triCounts 	import *
 
 
@@ -138,6 +138,10 @@ def SliceCollection(col: bpy.types.Collection) -> str:
 				timer_tile_start = time.time()
 
 				file_name = f"{ss_settings.output_prefix}_{x}_{y}_{z}"
+
+				if ss_settings.swizzle_yz:
+					file_name = f"{ss_settings.output_prefix}_{x}_{z}_{y}"
+
 				#Log("----------------------")
 				#Log("Exporting tile", file_name)
 
@@ -229,6 +233,9 @@ def SliceCollection(col: bpy.types.Collection) -> str:
 
 	# Export the tileset JSON
 	file_path = GetExportPath("tileset.json")
+
+	if ss_settings.swizzle_yz:
+		tileset_data = SwizzleTilesetData(tileset_data)
 
 	ExportDataToJSON(tileset_data, file_path, ss_settings.minify_json)
 

@@ -128,11 +128,18 @@ class VIEW3D_PT_SceneSlicer_Options(bpy.types.Panel):
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "export_format", text="")
 
-		# Tile prefix
+		# File prefix
 		row = box.row()
 		row.label(text="Filename prefix")
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "output_prefix", text="")
+
+		# Swizzle
+		row = box.row()
+		col = row.column(align=False)
+		col.label(text="Swizzle YZ")
+		col = row.column(align=True)
+		col.prop(context.scene.ss_settings, "swizzle_yz", text="")
 
 		# Tile origin
 		row = box.row()

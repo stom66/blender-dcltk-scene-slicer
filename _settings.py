@@ -79,6 +79,13 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 		description = "Should Draco compression be enabled - note this does not work with certain glTF viewers",
 		default     = False,
 	) # type: ignore
+	
+	# Draco compression
+	swizzle_yz: bpy.props.BoolProperty(
+		name        = "Swizzle YZ",
+		description = "Should the Y and Z axis be flipped to ensure Y is up",
+		default     = True,
+	) # type: ignore
 
 	# File format: gltf or glb
 	export_format: bpy.props.EnumProperty(
@@ -104,8 +111,8 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 		description = "Set the location of exported tile origins",
 		default     = "CENTER",
 		items       = [
-			("CENTER",   "Center",   "Center of the tile"),
-			("TILE_MIN", "Tile Min", "Minimum coordinates of the tile"),
-			("TILE_MAX", "Tile Max", "Maximum coordinates of the tile"),
-		],
+						("CENTER",   "Center",   "Center of the tile"),
+						("TILE_MIN", "Tile Min", "Minimum coordinates of the tile"),
+						("TILE_MAX", "Tile Max", "Maximum coordinates of the tile"),
+					],
 	)  # type: ignore

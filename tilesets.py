@@ -7,9 +7,8 @@ import os
 from collections import defaultdict
 from xml.etree.ElementTree import tostring
 
-from . _settings import *
-from . boundingBox	import *
-
+from . _settings 	import *
+from . boundingBox 	import *
 
 # ████████╗██╗██╗     ███████╗███████╗███████╗████████╗███████╗
 # ╚══██╔══╝██║██║     ██╔════╝██╔════╝██╔════╝╚══██╔══╝██╔════╝
@@ -18,6 +17,7 @@ from . boundingBox	import *
 #    ██║   ██║███████╗███████╗███████║███████╗   ██║   ███████║
 #    ╚═╝   ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚══════╝
 #
+
 
 def CreateTilesetFromCollection(col: bpy.types.Collection) -> dict[str, object]:
 	"""
@@ -57,16 +57,16 @@ def CreateTilesetFromCollection(col: bpy.types.Collection) -> dict[str, object]:
 
 	# Build Tileset data
 	tileset_data = {
-		"name"           : col.name,
-		"tileset_size"   : tileset_size,
-		"tileset_origin" : tileset_origin,
+		"name": col.name,
+		"tileset_size": tileset_size,
+		"tileset_origin": tileset_origin,
 		"tile_dimensions": tile_dimensions,
-		"tile_format"    : ss_settings.export_format,
-		"tile_origin"    : ss_settings.export_origin,
+		"tile_format": ss_settings.export_format,
+		"tile_origin": ss_settings.export_origin,
 		#"bounds_min"     : bounds_min,
 		#"bounds_max"     : bounds_max,
 		#"bounds_com"     : bounds_com,
-		"tiles"          : []
+		"tiles": []
 	}
 
 	return tileset_data
@@ -77,8 +77,8 @@ def GetTilesetSizeOrigin(
 	max_bounds     : tuple[int, int, int],
 	tile_dimensions: tuple[int, int, int]
 ) -> tuple[
-	tuple[int, int, int],
-	tuple[int, int, int],
+		tuple[int, int, int],
+		tuple[int, int, int],
 ]:
 	"""
 	Get the size and origin of the tileset based on min and max bounding box coordinates.
@@ -104,10 +104,7 @@ def GetTilesetAxisSize(
 	minPos   : float, 
 	maxPos   : float, 
 	tile_size: float
-) -> tuple[
-	int,
-	float
-]:
+) -> tuple[int, float]:
 	"""
 	Helper function to calculate the count and origin of tiles on a single tileset axis.
 
@@ -119,7 +116,7 @@ def GetTilesetAxisSize(
 	Returns:
 	- tuple[int, float]: A tuple containing the count (int) and origin (float) of tiles on the axis.
 	"""
-	
+
 	# Set the default origin - gets adjusted below
 	origin = 0
 
@@ -128,15 +125,50 @@ def GetTilesetAxisSize(
 
 	# Then subtract the extra cells if our start position was > 0
 	if minPos > 0:
-		tiles     =  math.floor(minPos / tile_size)
+		tiles     = math.floor(minPos / tile_size)
 		origin    += tiles * tile_size
 		tileCount -= tiles
 	# Add on some cells if start position was < 0
 	if minPos < 0:
-		tiles     =  math.ceil(minPos / -tile_size)
+		tiles     = math.ceil(minPos / -tile_size)
 		origin    -= tiles * tile_size
 		tileCount += tiles
 
 	return tileCount, origin
 
 
+def SwizzleYZ(data: tuple[float, float, float]) -> tuple[float, float, float]:
+	return [data[0], data[2], data[1]]
+
+
+def SwizzleTilesetData(og_data) -> dict[str, object]:
+
+	new_data = {
+		"name"           : og_data["name"],
+		"tileset_size"   : SwizzleYZ(og_data["tileset_size"]),
+		"tileset_origin" : SwizzleYZ(og_data["tileset_origin"]),
+		"tile_dimensions": SwizzleYZ(og_data["tile_dimensions"]),
+		"tile_format"    : og_data["tile_format"],
+		"tile_origin"    : og_data["tile_origin"],
+		"tiles"          : []
+	}
+
+	for x in range(new_data["tileset_size"][0]):
+		new_data["tiles"].append([])
+
+		for y in range(new_data["tileset_size"][1]):
+			new_data["tiles"][x].append([])
+
+			for z in range(new_data["tileset_size"][2]):
+				
+				og_tile = og_data["tiles"][x][z][y]
+
+				new_data["tiles"][x][y].append({
+					"index"     : SwizzleYZ(og_tile["index"]),
+					"src"       : og_tile["src"],
+					"pos_center": SwizzleYZ(og_tile["pos_center"]),
+					"pos_min"   : SwizzleYZ(og_tile["pos_min"]),
+					"pos_max"   : SwizzleYZ(og_tile["pos_max"]),
+				})
+
+	return new_data
