@@ -6,7 +6,5 @@ __pycache__/
 *.py[cod]
 
 # Ignore specific file types in test-files directory
-test-files/*
-
-!test-files/test-scene.blend
-!test-files/ColorGrid.png
+test-files/sliced/*
+test-files/src/park.glb
