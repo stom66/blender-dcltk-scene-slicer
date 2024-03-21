@@ -11,6 +11,8 @@ import bpy
 
 # Define default settings
 class SceneSlicerSettings(bpy.types.PropertyGroup):
+
+	version = "0.1.5"
 	
 	def refresh_collections(self, context):
 		items = [(col.name, col.name, col.name) for col in bpy.context.scene.collection.children if col.name != "Cutters"]

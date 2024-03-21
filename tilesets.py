@@ -58,6 +58,7 @@ def CreateTilesetFromCollection(col: bpy.types.Collection) -> dict[str, object]:
 
 	# Build Tileset data
 	tileset_data = {
+		"version"        : ss_settings.version,
 		"name"           : col.name,
 		"tileset_size"   : tileset_size,
 		"tileset_origin" : tileset_origin,
