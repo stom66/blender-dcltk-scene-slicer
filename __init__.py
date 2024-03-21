@@ -46,16 +46,18 @@ def register():
 	bpy.types.Scene.ss_settings = bpy.props.PointerProperty(type=SceneSlicerSettings)
 	
 	# Register various UI component classes
+	bpy.utils.register_class(EXPORT_OT_SceneSlicer_Preview)
 	bpy.utils.register_class(SCENE_OT_SceneSlicer_RefreshCollections)
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Main)
-	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Export)
+	bpy.utils.register_class(EXPORT_OT_SceneSlicer_Export)
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Options)
 
 def unregister():
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Options)
-	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Export)
+	bpy.utils.unregister_class(EXPORT_OT_SceneSlicer_Export)
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Main)
 	bpy.utils.unregister_class(SCENE_OT_SceneSlicer_RefreshCollections)
+	bpy.utils.unregister_class(EXPORT_OT_SceneSlicer_Preview)
 
 	# Unregister settings class
 	bpy.utils.unregister_class(SceneSlicerSettings)

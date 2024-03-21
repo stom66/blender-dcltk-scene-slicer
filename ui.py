@@ -1,7 +1,6 @@
 import bpy
 
-from . _main import Main
-
+from . _main import EXPORT_OT_SceneSlicer_Export, EXPORT_OT_SceneSlicer_Preview
 
 
 # ███████╗███████╗    ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗
@@ -11,17 +10,6 @@ from . _main import Main
 # ███████║███████║    ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   
 # ╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
 #                                                                       
-
-# UI Main button for exporting
-class VIEW3D_PT_SceneSlicer_Export(bpy.types.Operator):
-	bl_idname  = "ss.btn_slice_and_export"
-	bl_label   = "Main function"
-	bl_options = {'REGISTER', 'UNDO'}
-
-	def execute(self, context):
-		self.report({'INFO'}, 'Exporting...')
-		result = Main()
-		return result
 
 # UI button to refresh collection dropdown
 class SCENE_OT_SceneSlicer_RefreshCollections(bpy.types.Operator):
@@ -63,10 +51,13 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 		row = layout.row()
 		row.prop(context.scene.ss_settings, "tile_dimensions", text="")
 
-
 		# Btn: Slice and Export
 		row = layout.row()
-		row.operator(VIEW3D_PT_SceneSlicer_Export.bl_idname, text="Slice and Export", icon="FILE_VOLUME")
+		row.operator(EXPORT_OT_SceneSlicer_Export.bl_idname, text="Slice and Export", icon="FILE_VOLUME")
+
+		# Btn: Preview
+		row = layout.row()
+		row.operator(EXPORT_OT_SceneSlicer_Preview.bl_idname, text="Preview", icon="HIDE_OFF")
 
 
 
