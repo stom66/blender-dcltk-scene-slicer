@@ -14,7 +14,7 @@ from 	xml.etree.ElementTree 	import tostring
 # ╚═╝     ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
 #                                  
 
-def GetExportPath(file: str = "") -> str:
+def GetExportPath(file: str = None) -> str:
 	"""
 	Get the export path for the collection.
 
