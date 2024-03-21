@@ -9,6 +9,7 @@ from xml.etree.ElementTree import tostring
 
 from . _settings 	import *
 from . boundingBox 	import *
+from . tiles		import GetTilePositionMin, GetTilePositionMax, GetTilePositionCenter
 
 # ████████╗██╗██╗     ███████╗███████╗███████╗████████╗███████╗
 # ╚══██╔══╝██║██║     ██╔════╝██╔════╝██╔════╝╚══██╔══╝██╔════╝
@@ -57,16 +58,32 @@ def CreateTilesetFromCollection(col: bpy.types.Collection) -> dict[str, object]:
 
 	# Build Tileset data
 	tileset_data = {
-		"name": col.name,
-		"tileset_size": tileset_size,
-		"tileset_origin": tileset_origin,
+		"name"           : col.name,
+		"tileset_size"   : tileset_size,
+		"tileset_origin" : tileset_origin,
 		"tile_dimensions": tile_dimensions,
-		"tile_format": ss_settings.export_format,
-		"tile_origin": ss_settings.export_origin,
+		"tile_format"    : ss_settings.export_format,
+		"tile_origin"    : ss_settings.export_origin,
+		"tile_y_is_up"   : ss_settings.swizzle_yz,
 		#"bounds_min"     : bounds_min,
 		#"bounds_max"     : bounds_max,
 		#"bounds_com"     : bounds_com,
-		"tiles": []
+        "tiles": [
+            [
+                [
+                    {
+                        "index"     : [x, y, z],
+                        "src"       : f"{ss_settings.output_prefix}_{x}_{z}_{y}" if ss_settings.swizzle_yz else f"{ss_settings.output_prefix}_{x}_{y}_{z}",
+                        "pos_center": GetTilePositionCenter([x, y, z], tileset_origin, tile_dimensions),
+                        "pos_min"   : GetTilePositionMin([x, y, z], tileset_origin, tile_dimensions),
+                        "pos_max"   : GetTilePositionMax([x, y, z], tileset_origin, tile_dimensions)
+                    }
+                    for z in range(tileset_size[2])
+                ]
+                for y in range(tileset_size[1])
+            ]
+            for x in range(tileset_size[0])
+        ]
 	}
 
 	return tileset_data
