@@ -58,6 +58,10 @@ def DuplicateObjects(
 		original_name      = obj.name
 		obj.name           = temp_prefix + original_name
 		duplicate_obj.name = original_name
+
+		# Check if the object has `_collider` in the name, and if so ensure it appears at the end
+		if '_collider' in duplicate_obj.name and not duplicate_obj.name.endswith('_collider'):
+			duplicate_obj.name = duplicate_obj.name + '_collider'
 		
 		# Set the duplicate object as the active object
 		bpy.context.view_layer.objects.active = duplicate_obj
@@ -74,6 +78,9 @@ def DuplicateObjects(
 
 		# Convert to mesh and apply modifiers
 		bpy.ops.object.convert(target='MESH', keep_original=False)
+
+		# Clear the parent and keep its transform
+		bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 
 		# Update the objects origin to match the 3d cursor
 		bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
