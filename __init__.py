@@ -26,8 +26,13 @@ bl_info = {
 	"doc_url"    : "https://github.com/stom66/blender-dcltk-scene-slicer"
 }
 
+import bpy
+
+from bpy.app.handlers import persistent
+
 from . _main 		import *
 from . _settings 	import *
+from . logging		import *
 from . ui 			import *
 
 
@@ -45,20 +50,52 @@ def register():
 	bpy.utils.register_class(SceneSlicerSettings)
 	bpy.types.Scene.ss_settings = bpy.props.PointerProperty(type=SceneSlicerSettings)
 	
-	# Register various UI component classes
+	# Register operators
 	bpy.utils.register_class(EXPORT_OT_SceneSlicer_Preview)
 	bpy.utils.register_class(SCENE_OT_SceneSlicer_RefreshCollections)
-	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Main)
 	bpy.utils.register_class(EXPORT_OT_SceneSlicer_Export)
+
+	# Register UI panels
+	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Main)
 	bpy.utils.register_class(VIEW3D_PT_SceneSlicer_Options)
 
+	# Register handlers
+	if HANDLER_UI_ResetProgress not in bpy.app.handlers.load_post:
+		bpy.app.handlers.load_post.append(HANDLER_UI_ResetProgress)
+
+
+
 def unregister():
+	# Remove handlers
+	if HANDLER_UI_ResetProgress in bpy.app.handlers.load_pre:
+		bpy.app.handlers.load_pre.remove(HANDLER_UI_ResetProgress)
+	if HANDLER_UI_ResetProgress in bpy.app.handlers.depsgraph_update_post:
+		bpy.app.handlers.depsgraph_update_post.remove(HANDLER_UI_ResetProgress)
+
+	# Remove UI panels
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Options)
-	bpy.utils.unregister_class(EXPORT_OT_SceneSlicer_Export)
 	bpy.utils.unregister_class(VIEW3D_PT_SceneSlicer_Main)
+
+	# remove operators
+	bpy.utils.unregister_class(EXPORT_OT_SceneSlicer_Export)
 	bpy.utils.unregister_class(SCENE_OT_SceneSlicer_RefreshCollections)
 	bpy.utils.unregister_class(EXPORT_OT_SceneSlicer_Preview)
 
-	# Unregister settings class
+	# Remove settings class
 	bpy.utils.unregister_class(SceneSlicerSettings)
 	del bpy.types.Scene.ss_settings
+
+
+
+# ██╗  ██╗ █████╗ ███╗   ██╗██████╗ ██╗     ███████╗██████╗ ███████╗
+# ██║  ██║██╔══██╗████╗  ██║██╔══██╗██║     ██╔════╝██╔══██╗██╔════╝
+# ███████║███████║██╔██╗ ██║██║  ██║██║     █████╗  ██████╔╝███████╗
+# ██╔══██║██╔══██║██║╚██╗██║██║  ██║██║     ██╔══╝  ██╔══██╗╚════██║
+# ██║  ██║██║  ██║██║ ╚████║██████╔╝███████╗███████╗██║  ██║███████║
+# ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝
+#
+
+@persistent
+def HANDLER_UI_ResetProgress(scene):
+	Log("HANDLER_Scene_Update_Pre()")
+	EXPORT_OT_SceneSlicer_Export.resetProgress(EXPORT_OT_SceneSlicer_Export)
