@@ -98,4 +98,4 @@ def unregister():
 @persistent
 def HANDLER_UI_ResetProgress(scene):
 	Log("HANDLER_Scene_Update_Pre()")
-	EXPORT_OT_SceneSlicer_Export.resetProgress(EXPORT_OT_SceneSlicer_Export)
+	EXPORT_OT_SceneSlicer_Export.UI_ResetProgress(EXPORT_OT_SceneSlicer_Export)

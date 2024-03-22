@@ -152,7 +152,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 				RemoveBrokenBooleans(obj)
 
 		# Update the UI
-		self.updateProgress()
+		self.UI_UpdateProgress()
 
 		# Setup the modal, with a timer to ensure it runs properly
 		self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
@@ -257,7 +257,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 
 
 				# Update the progress bar
-				self.updateProgress()				
+				self.UI_UpdateProgress()				
 				
 				# Add the tile_data to the array of tiles
 				Log(str(self.count_processed), tile_data["src"], "took", time.time() - tile_time_start)
@@ -280,7 +280,6 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 				# If X has overrun, then we're done and finished
 				if self.tileset_index[0] > (x_max - 1):
 					
-					# If all objects have been processed, finish the operation	
 					# Cleanup after, remove the Bools used for cutting
 					for obj in self.collection.all_objects:
 						RemoveIntersectBooleans(obj, self.cutter)
@@ -299,7 +298,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 					Log("Processed", self.count_processed, "tiles, skipped", self.count_skipped, "-", self.count_skipped_empty, "had 0 tris after bool)")
 					Log("Total time taken:", str(time.time() - self.time_start))
 
-					self.updateProgress()
+					self.UI_UpdateProgress()
 
 					# Return and show info
 					report = f"Exported {str(self.count_processed - self.count_skipped)} of {str(self.count_processed)} tiles"
@@ -311,7 +310,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 		return {'PASS_THROUGH'}
 	
 
-	def updateProgress(self):
+	def UI_UpdateProgress(self):
 		# Get scene slicer settings
 		ss_settings = bpy.context.scene.ss_settings
 
@@ -322,7 +321,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 		# Update the UI
 		RefreshUI()
 
-	def resetProgress(self):
+	def UI_ResetProgress(self):
 
 		# Get scene slicer settings
 		ss_settings = bpy.context.scene.ss_settings
@@ -331,14 +330,13 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 		ss_settings.export_text     = "Idle"
 		ss_settings.export_progress = 0
 
-		Log("ResetProgress")
+		Log("SS.ResetProgress")
+
 		# Update the UI
 		RefreshUI()
 
 def RefreshUI():
-	start = time.time()
 	for wm in bpy.data.window_managers:
 		for w in wm.windows:
 			for area in w.screen.areas:
 				area.tag_redraw()
-	Log("RefreshUI took ", time.time() - start)
