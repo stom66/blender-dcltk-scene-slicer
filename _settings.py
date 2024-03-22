@@ -23,7 +23,7 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 
 	version: bpy.props.StringProperty(
 		name        = "Plugin version",
-		default     = "0.2.0",
+		default     = "0.2.1",
 	) # type: ignore
 
 	export_progress: bpy.props.FloatProperty(
