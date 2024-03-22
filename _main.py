@@ -14,15 +14,14 @@
 
 import bpy
 import time
-import os
 
 from . booleans		import *
 from . boundingBox	import *
 from . collections	import DeleteCollection
 from . cutter		import CreateCutter, CreateCutterHelper
-from . export		import ExportCollectionToGLtf, ExportObjectsToGLtf, ExportDataToJSON, GetExportPath
+from . duplicate	import DuplicateObjects
+from . export		import ExportObjectsToGLtf, ExportDataToJSON, GetExportPath
 from . logging		import Log, LogReset
-from . tiles		import GetTilePositionMin, GetTilePositionMax, GetTilePositionCenter
 from . tilesets		import CreateTilesetFromCollection, SwizzleTilesetData
 from . triCounts 	import *
 
@@ -81,265 +80,251 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 	bl_label   = "Slice and Export"
 	bl_options = {'REGISTER', 'UNDO'}
 
-	def execute(self, context):		
-		time_start = time.time()
+	def execute(self, context):
+		# Get scene slicer settings
+		ss_settings = bpy.context.scene.ss_settings
+
+		# Setup some starting values for the operation
+		self.count_total         = 0
+		self.count_processed     = 0
+		self.count_skipped       = 0
+		self.count_skipped_empty = 0
+
+		self.tileset_data        = None
+		self.tiles_total         = 0
+		self.tileset_index       = [0, 0, 0]
+
+		self.collection          = bpy.data.collections.get(ss_settings.export_collection)
+		self.col_object_bounds   = None
+		self.sliced_collection   = None
+
+		self.cutter              = None
+		self.cutter_helper       = None
+				
+		self.time_start          = time.time()
+
 		LogReset()
 		Log("#------------------------------------------------#")
 		Log("#      Exporting collection to tilset            #")
 		Log("#------------------------------------------------#")
 
-		# Get scene slicer settings
-		ss_settings = bpy.context.scene.ss_settings
-
-		# Get the chosen collection in the panel
-		collection = bpy.data.collections.get(ss_settings.export_collection)
 
 		# Ensure we have a valid collection and trigger the main function
-		if not collection:
+		if not self.collection:
 			Log(f"ERROR: No collection specified. Nothing to do...")
 			Log("-----------------------------------------------------")
-			return {'FAILED - No collection specified'}
+			self.report({'INFO'}, 'No collection specified')
+			return {'CANCELLED'}
 
-
-		# Prefix to temporarily assign to objects being duplicated for export
-		temp_prefix = "SS_TEMP_RENAME_"
 		
 		# Create a new collection to place the sliced objects in
 		# If it already exists, remove it and any objects in it
 		sliced_collection_name = "_sliced." + ss_settings.export_collection
-		sliced_collection = bpy.data.collections.get(sliced_collection_name)
-		if sliced_collection:
-			DeleteCollection(sliced_collection, True)
+		self.sliced_collection = bpy.data.collections.get(sliced_collection_name)
+		if self.sliced_collection:
+			DeleteCollection(self.sliced_collection, True)
 
-		sliced_collection = bpy.data.collections.new(sliced_collection_name)
-		bpy.context.scene.collection.children.link(sliced_collection)
+		self.sliced_collection = bpy.data.collections.new(sliced_collection_name)
+		bpy.context.scene.collection.children.link(self.sliced_collection)
 
 		# Ensure nothing is selected
 		bpy.ops.object.select_all(action='DESELECT')
 
 		# Generate the basic tileset data from the collection: size, bounds, etc
-		tileset_data = CreateTilesetFromCollection(collection)
+		self.tileset_data = CreateTilesetFromCollection(self.collection)
+
+		# Update the expected number of tiles
+		size = self.tileset_data["tileset_size"]
+		self.count_total = size[0] * size[1] * size[2]
+
+		# Build a dict of each object and their min/max bounds
+		self.col_object_bounds = GetCollectionObjectBounds(self.collection)
 
 		# Create/update the cutter and the helper object
-		cutter        = CreateCutter(tileset_data)
-		cutter_helper = CreateCutterHelper(tileset_data)
+		self.cutter        = CreateCutter(self.tileset_data)
+		self.cutter_helper = CreateCutterHelper(self.tileset_data)
 
 		# Ensure every object has a bool mod, set to use our cutter
 		# also tidy up old/broken booleans
-		for obj in collection.all_objects:
+		for obj in self.collection.all_objects:
 			if obj.type == 'MESH':
-				AddIntersectBooleans(obj, cutter)
+				AddIntersectBooleans(obj, self.cutter)
 				RemoveBrokenBooleans(obj)
+		# Update the UI
+		self.updateProgress()
 
-		# Setup some counters
-		processed_count   = 0
-		skipped_count     = 0
-		skipped_tri_count = 0
+		# Setup the modal, with a timer to ensure it runs properly
+		self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
+		context.window_manager.modal_handler_add(self)
+		return {'RUNNING_MODAL'}
+	
 
-		# Build a dict of each object and their min/max bounds
-		col_object_bounds = GetCollectionObjectBounds(collection)
+	def updateProgress(self):
+		# Get scene slicer settings
+		ss_settings = bpy.context.scene.ss_settings
+
+		# Setup progress indicator
+		ss_settings.export_text     = f"{self.count_processed} of {self.count_total}"
+		ss_settings.export_progress = self.count_processed / self.count_total
+
+		# Update the UI
+		RefreshUI()
+
+
+	def modal(self, context, event):
 		
-		# Timer stuff
-		Log("col_object_bounds", time.time() - time_start)
-
-		# Now we loop through each of the tiles, adding an entry to the tiles array for each
+		if event.type == 'ESC':
+			return {'CANCELLED'}
 		
-		tileset_size = tileset_data["tileset_size"]
+		if event.type == 'TIMER':
 
-		for x in range(tileset_size[0]):
-			tileset_data["tiles"].append([])
+			# Get scene slicer settings
+			ss_settings = bpy.context.scene.ss_settings
 
-			for y in range(tileset_size[1]):
-				tileset_data["tiles"][x].append([])
+			# Prefix to temporarily assign to objects being duplicated for export
+			temp_prefix = "SS_TEMP_RENAME_"
 
-				for z in range(tileset_size[2]):
+			# How many should we export in each loop?
+			batch_size = 1
+
+			# Get max tile indexes
+			x_max, y_max, z_max = self.tileset_data["tileset_size"]
+
+			# Loop through the tiles in this batch
+			for _ in range(batch_size):
+				tile_time_start = time.time()
+
+				# Get the current tile indexes
+				x, y, z = self.tileset_index
+
+
+				# Check if we need to intitialise this array
+				if x == 0: 
+					self.tileset_data["tiles"].append([])
+
+				if y == 0:
+					self.tileset_data["tiles"][x].append([])
+						
+				# Reference to tile data
+				tile_data = self.tileset_data["tiles"][x][y][z]
+
+				# Find which objects are in the current tile
+				objects_in_bounds = GetObjectsWithinBounds(self.col_object_bounds, tile_data["pos_min"], tile_data["pos_max"])
+
+
+				# Export the objects in the tile
+				if len(objects_in_bounds) > 0:
 					
-					timer_tile_start = time.time()
+					# Move the cutter to the right position
+					self.cutter.location = tile_data["pos_center"]
 
-					# Reference to tile data
-					tile_data = tileset_data["tiles"][x][y][z]
+					# Get the tile origin, based on the export settings
+					tile_origin = tile_data["pos_center"]
+					if ss_settings.export_origin == "TILE_MIN":
+						tile_origin = tile_data["pos_min"]
+					elif ss_settings.export_origin == "TILE_MAX":
+						tile_origin = tile_data["pos_max"]
 
-					# Timer stuff
-					#Log("1) tile_data took", time.time() - timer_tile_start)
+					# Move the 3d cursor to the tile origin
+					bpy.context.scene.cursor.location = tile_origin
 
-					# Find which objects are in the current tile
-					objects_in_bounds = GetObjectsWithinBounds(col_object_bounds, tile_data["pos_min"], tile_data["pos_max"])
+					# Duplicate all the objects (applying their modifiers and setting the right position)
+					duplicate_objects = DuplicateObjects(objects_in_bounds, tile_origin, temp_prefix)
 
-					# Timer stuff
-					#Log("2) objects_in_bounds", time.time() - timer_tile_start)
+					# Ensure all objects are deselected
+					bpy.ops.object.select_all(action='DESELECT')
 
-					# Export the objects in the tile
-					if len(objects_in_bounds) > 0:
-						
-						# Move the cutter to the right position
-						cutter.location = tile_data["pos_center"]
+					# Move the duplicate objects to the sliced collection
+					for obj in duplicate_objects:
+						for collection in obj.users_collection:
+							collection.objects.unlink(obj)
+						self.sliced_collection.objects.link(obj)
 
-						# Get the tile origin, based on the export settings
-						tile_origin = tile_data["pos_center"]
-						if ss_settings.export_origin == "TILE_MIN":
-							tile_origin = tile_data["pos_min"]
-						elif ss_settings.export_origin == "TILE_MAX":
-							tile_origin = tile_data["pos_max"]
+					# Trigger the gltf export (only if the tri count is > 0)
+					if GetTotalTriCount(duplicate_objects) > 0:
+						ExportObjectsToGLtf(duplicate_objects, tile_data["src"])
+						pass
+					else:
+						self.count_skipped += 1
+						self.count_skipped_empty += 1
+						tile_data["src"] = None;
 
-						bpy.context.scene.cursor.location = tile_origin
-						#Log("3) updated cutter and cursor location", time.time() - timer_tile_start)
+					# Remove the duplicates?
+					#for obj in duplicate_objects:
+					#	bpy.data.objects.remove(obj)
+					#Log("6) remove dupes", time.time() - timer_tile_start)
 
-						# Duplicate all the objects (applying their modifiers and setting the right position)
-						duplicate_objects = DuplicateObjects(objects_in_bounds, tile_origin, temp_prefix)
-						#Log("4) duplicated objects", time.time() - timer_tile_start)
+					# Remove temp_prefix from original names
+					for obj in objects_in_bounds:
+						obj.name = obj.name.replace(temp_prefix, '')
 
-						
-						bpy.ops.object.select_all(action='DESELECT')
+					pass
 
-						# Move the duplcaite objects to the sliced collection
-						for obj in duplicate_objects:
-							for collection in obj.users_collection:
-								collection.objects.unlink(obj)
-							sliced_collection.objects.link(obj)
+				# If no objects are in the bounds, skip the export and set the src to none
+				else:
+					self.count_skipped += 1
+					tile_data["src"] = None;
 
-						# Trigger the gltf export (only if the tri count is > 0)
-						if GetTotalTriCount(duplicate_objects) > 0:
-							ExportObjectsToGLtf(duplicate_objects, tile_data["src"])
-							pass
-						else:
-							#Log("Skipping tile with 0 verts: ", x, y, z)
-							skipped_count += 1
-							skipped_tri_count += 1
-							tile_data["src"] = None;
-						#Log("5) export/skip", time.time() - timer_tile_start)
 
-						# Remove the duplicates
-						#for obj in duplicate_objects:
-						#	bpy.data.objects.remove(obj)
-						#Log("6) remove dupes", time.time() - timer_tile_start)
+				# Update the progress bar
+				self.updateProgress()
+				
+				
+				# Add the tile_data to the array of tiles
+				Log(str(self.count_processed), tile_data["src"], "took", time.time() - tile_time_start)
+				self.tileset_data["tiles"][x][y].append(tile_data)
+				self.count_processed += 1
 
-						# Remove temp_prefix from original names
-						for obj in objects_in_bounds:
-							obj.name = obj.name.replace(temp_prefix, '')
+				# Increment the indexes
+				self.tileset_index[2] += 1
 
+				# Check if Z has overrun and increment Y
+				if self.tileset_index[2] > (z_max - 1):
+					self.tileset_index[2] = 0
+					self.tileset_index[1] += 1
+
+				# Check if Y has overrun and increment X
+				if self.tileset_index[1] > (y_max - 1):
+					self.tileset_index[1] = 0
+					self.tileset_index[0] += 1
+
+				# If X has overrun, then we're done and finished
+				if self.tileset_index[0] > (x_max - 1):
+					
+					# If all objects have been processed, finish the operation	
+					# Cleanup after, remove the Bools used for cutting
+					for obj in self.collection.all_objects:
+						RemoveIntersectBooleans(obj, self.cutter)
 						pass
 
-					# Otherwise skip the export and set the file_name to none
-					else:
-						skipped_count += 1
-						tile_data["src"] = None;
-					
-					# Add the tile_data to the array of tiles
-					Log(str(processed_count), tile_data["src"], "took", time.time() - timer_tile_start)
-					tileset_data["tiles"][x][y].append(tile_data)
-					processed_count += 1
+					# Swizzle the data if required
+					if ss_settings.swizzle_yz:
+						self.tileset_data = SwizzleTilesetData(self.tileset_data)
 
-		# End of Tiles loop
-		
-		# Cleanup after, remove the Bools used for cutting
-		for obj in collection.all_objects:
-			RemoveIntersectBooleans(obj, cutter)
-			pass
+					# Export the tileset json
+					file_path = GetExportPath("tileset.json")
+					ExportDataToJSON(self.tileset_data, file_path, ss_settings.minify_json)
 
-		# Export the tileset json
-		file_path = GetExportPath("tileset.json")
+					# Logging
+					Log("-----------------------------------------------------")
+					Log("Processed", self.count_processed, "tiles, skipped", self.count_skipped, "-", self.count_skipped_empty, "had 0 tris after bool)")
+					Log("Total time taken:", str(time.time() - self.time_start))
 
-		if ss_settings.swizzle_yz:
-			tileset_data = SwizzleTilesetData(tileset_data)
+					self.updateProgress()
 
-		ExportDataToJSON(tileset_data, file_path, ss_settings.minify_json)
+					# Return and show info
+					report = f"Exported {str(self.count_processed - self.count_skipped)} of {str(self.count_processed)} tiles"
+					self.report({'INFO'}, report)
+					return {'FINISHED'}
+			
+			# Otherwise we've completed the batch
+			# Update progress
+		return {'PASS_THROUGH'}
 
-		Log("-----------------------------------------------------")
-		Log("Processed", processed_count, "tiles, skipped", skipped_count, "(", skipped_tri_count, " had 0 tris after bool)")
-		Log("Total time taken:", str(time.time() - time_start))
-
-		report = "Exported " + str(processed_count - skipped_count) + " of " + str(processed_count) + " tiles"
-
-		
-		self.report({'INFO'}, str(processed_count) + ' tiles exported')
-		return {'FINISHED'}
-
-
-def ProcessTile(tile_data, scene_objects):
-
-	pass
-
-
-
-
-# ██████╗ ██╗   ██╗██████╗ ██╗     ██╗ ██████╗ █████╗ ████████╗ ██████╗ ██████╗ 
-# ██╔══██╗██║   ██║██╔══██╗██║     ██║██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗
-# ██║  ██║██║   ██║██████╔╝██║     ██║██║     ███████║   ██║   ██║   ██║██████╔╝
-# ██║  ██║██║   ██║██╔═══╝ ██║     ██║██║     ██╔══██║   ██║   ██║   ██║██╔══██╗
-# ██████╔╝╚██████╔╝██║     ███████╗██║╚██████╗██║  ██║   ██║   ╚██████╔╝██║  ██║
-# ╚═════╝  ╚═════╝ ╚═╝     ╚══════╝╚═╝ ╚═════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
-#
-
-def DuplicateObjects(
-	objects    : list[bpy.types.Object],
-	new_origin : tuple[float, float, float],
-	temp_prefix: str
-) -> list[bpy.types.Object]:
-	"""
-	Duplicate a list of Blender objects, applying modifiers and updating the origin.
-	Note that this function will set the origin to the current 3d cursor position,
-	then move the object to 0,0,0
-
-	:param objects: List of Blender objects to duplicate.
-	:type objects: list[bpy.types.Object]
-
-	:param temp_prefix: Prefix to be added to the original objects' names temporarily.
-	:type temp_prefix: str
-
-	:return: List of duplicated objects with applied modifiers and updated origins.
-	:rtype: list[bpy.types.Object]
-	"""
-	time_start = time.time()
-
-	# Ensure nothing is selected
-	bpy.ops.object.select_all(action='DESELECT')
-
-	# Create a blank list to store the duplicated objects
-	duplicate_objects = []
-
-	# Set the 3d cursor to the new origin
-	bpy.context.scene.cursor.location = new_origin
-	
-	# Clone objects, apply their modifiers, set their origins
-	for index, obj in enumerate(objects):
-		t = time.time
-		time_object_start = t
-
-		# Create a duplicate of the object
-		duplicate_obj      = obj.copy()
-		duplicate_obj.data = obj.data.copy()
-		bpy.context.collection.objects.link(duplicate_obj)
-
-		#Log("    ", index, "copy object took ", time.time() - time_object_start)
-
-		# Rename the original temporarily and ensure the clone has the original name
-		# We do this so that the exported model doesn't end up with different mesh names
-		original_name      = obj.name
-		obj.name           = temp_prefix + original_name
-		duplicate_obj.name = original_name
-		
-		# Set the duplicate object as the active object
-		bpy.context.view_layer.objects.active = duplicate_obj
-		duplicate_obj.select_set(True)
-		
-		#Log("    ", index, "rename and set active took", time.time() - time_object_start)
-
-		# Ensure we're in Object Mode
-		bpy.ops.object.mode_set(mode='OBJECT')
-
-		# Convert to mesh and apply modifiers
-		bpy.ops.object.convert(target='MESH', keep_original=False)
-
-		# Update the objects origin to match the 3d cursor
-		bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
-
-		# Add the duplicate object to the list
-		duplicate_objects.append(duplicate_obj)
-	
-	# Move all the objects AFTER we have duplicated them, otherwise some origins are incorrect
-	#for obj in duplicate_objects:
-	#	obj.location = (0, 0, 0)
-	
-	
-	Log("DuplicateObjects took", time.time() - time_start, "for", len(objects), "objects")
-	return duplicate_objects
+def RefreshUI():
+	start = time.time()
+	for wm in bpy.data.window_managers:
+		for w in wm.windows:
+			for area in w.screen.areas:
+				area.tag_redraw()
+	Log("RefreshUI took ", time.time() - start)

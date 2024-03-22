@@ -9,14 +9,31 @@ import bpy
 # ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝
 #
 
+def update_export_progress(self, context):
+	# Force a redraw of the UI
+	bpy.context.area.tag_redraw()
+
 # Define default settings
 class SceneSlicerSettings(bpy.types.PropertyGroup):
-
-	version = "0.1.5"
-	
 	def refresh_collections(self, context):
 		items = [(col.name, col.name, col.name) for col in bpy.context.scene.collection.children if col.name != "Cutters"]
 		return items
+
+
+	version = "0.1.5"
+	export_text = "Idle foo bar baz bing"
+
+	export_progress: bpy.props.FloatProperty(
+		name        = "Export progress",
+		default     = 0,
+		min         = 0,
+		max         = 1
+	) # type: ignore
+
+	export_text: bpy.props.StringProperty(
+		name        = "Export text",
+		default     = "Idle",
+	) # type: ignore
 
 	# Collection to export dropdown
 	export_collection: bpy.props.EnumProperty(
@@ -42,7 +59,9 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 		description = "Set the size of each grid tile to partition the ",
 		default     = (8, 8, 8),
 		subtype     = 'XYZ',
-		size        = 3
+		size        = 3,
+		min         = 1,
+		max         = 256
 	) # type: ignore
 
 	#

@@ -9,7 +9,8 @@ from . _main import EXPORT_OT_SceneSlicer_Export, EXPORT_OT_SceneSlicer_Preview
 # ╚════██║╚════██║    ██╔══╝   ██╔██╗ ██╔═══╝ ██║   ██║██╔══██╗   ██║   
 # ███████║███████║    ███████╗██╔╝ ██╗██║     ╚██████╔╝██║  ██║   ██║   
 # ╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   
-#                                                                       
+#             
+#
 
 # UI button to refresh collection dropdown
 class SCENE_OT_SceneSlicer_RefreshCollections(bpy.types.Operator):
@@ -51,14 +52,29 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 		row = layout.row()
 		row.prop(context.scene.ss_settings, "tile_dimensions", text="")
 
-		# Btn: Slice and Export
-		row = layout.row()
-		row.operator(EXPORT_OT_SceneSlicer_Export.bl_idname, text="Slice and Export", icon="FILE_VOLUME")
-
 		# Btn: Preview
 		row = layout.row()
 		row.operator(EXPORT_OT_SceneSlicer_Preview.bl_idname, text="Preview", icon="HIDE_OFF")
 
+		# Btn: Slice and Export
+		row = layout.row()
+		row.operator(EXPORT_OT_SceneSlicer_Export.bl_idname, text="Slice and Export", icon="FILE_VOLUME")
+
+		# Progress
+		row = layout.row()
+		split = layout.split(factor=0.4)
+
+		col = split.column(align=True)
+		col.label(text="Export Progress: ")
+		
+		col = split.column()
+		col.progress(factor = context.scene.ss_settings.export_progress, 
+					 type   = 'BAR', 
+					 text   = context.scene.ss_settings.export_text)
+
+		# Progress
+		row = layout.row()
+		row.label(text="Plugin version: " + context.scene.ss_settings.version)
 
 
 # ███████╗███████╗    ███████╗███████╗████████╗████████╗██╗███╗   ██╗ ██████╗ ███████╗
