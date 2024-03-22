@@ -20,8 +20,11 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 		return items
 
 
-	version = "0.1.5"
-	export_text = "Idle foo bar baz bing"
+
+	version: bpy.props.StringProperty(
+		name        = "Plugin version",
+		default     = "0.2.0",
+	) # type: ignore
 
 	export_progress: bpy.props.FloatProperty(
 		name        = "Export progress",
