@@ -53,8 +53,6 @@ def DuplicateObjects(
 		duplicate_obj.data = obj.data.copy()
 		bpy.context.collection.objects.link(duplicate_obj)
 
-		#Log("    ", index, "copy object took ", time.time() - time_object_start)
-
 		# Rename the original temporarily and ensure the clone has the original name
 		# We do this so that the exported model doesn't end up with different mesh names
 		original_name      = obj.name
@@ -69,6 +67,10 @@ def DuplicateObjects(
 
 		# Ensure we're in Object Mode
 		bpy.ops.object.mode_set(mode='OBJECT')
+
+		# If the object had a rigidbody, remove it
+		if obj.rigid_body is not None:
+			bpy.ops.rigidbody.object_remove()
 
 		# Convert to mesh and apply modifiers
 		bpy.ops.object.convert(target='MESH', keep_original=False)
