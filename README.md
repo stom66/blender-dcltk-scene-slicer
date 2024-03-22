@@ -1,6 +1,6 @@
 # Blender Decentraland Toolkit: Scene Slicer
 
-This is a Blender (3.6 or higher) plugin for partitioning a collection into a grid of tiles and exporting each tile as a glTF.
+This is a Blender (4.0 or higher) plugin for partitioning a collection of objects into a grid of tiles, and  exporting each tile as a glTF.
 
 It was written for use with the **Infinity Engine** in Decentraland - see the [Decentrally repository](https://github.com/decentraland-scenes/decentrally) for more information.
 
@@ -9,8 +9,9 @@ It was written for use with the **Infinity Engine** in Decentraland - see the [D
 
 ### Features
 
-* Export tiles to GLtf - supports Draco compression
-* Export tileset data to JSON - supports minification
+* It slices, it dices, and it exports to glTF!
+* Supports Draco compression
+* Exports tileset data to JSON
 * Configurable tile size and origin
 
 Installation
@@ -31,42 +32,74 @@ How to use
     * Choose your collection in the dropdown 
     * Configure output path (see below)
     * Configure grid size (see below)
+    * Click the "Preview" button and check the grid layout
     * Click the "Slice and Export" button
+    * The glTF and tileset.json files will be exported
+    * You can cancel the Slice by pressing escape
+    * You can delete the `_sliced` collection that is created after verifying the scene was properly sliced
+
+
+### Tips
+
+* You can press `Esc` to cancel the Slice
+* Ensure objects are in positive positions on all axis, eg above the ground (Z+), as well as X+ and Y+, relative to the world origin
+* Avoid excessively high poly-counts - tile creation can take several seconds per-tile in excessively complicated scenes, resulting in extended slicing times.
+* Avoid having vertexs at the intersections of tiles as this can cause problems with the booleans.  
+Eg, don't have the floor at 0 as this will intersect/align with the bottom of the grid. Raise it slightly to avoid problems. If you're getting weird artefacts and janky meshes when slicing, it's most likely due to a bad mesh or vertexs aligning perfectly with the edge of a tile.
 
 ### Settings:
 
 The following options are available in the Scene Slicer panel: 
 
-#### Export collection
+* **Export collection**
 
-* Choose the collection of objects you wish to export
-* Click the refresh symbol if your collection is not in the dropdown
-* All objects within the collection will be exported - visbility is ignored
+    * Choose the collection of objects you wish to export
+    * Click the refresh symbol if your collection is not in the dropdown
+    * All objects within the collection will be exported - visbility is ignored
 
-#### Output path
-* Blender uses `//` for relative paths
-* Use `//tiles` to output to a folder named `tiles` in current file location
+* **Output folder**
+    * Blender uses `//` for relative paths
+    * Use `//tiles` to output to a folder named `tiles` in current file location
+    * The glTF files and the `tileset.json` file describing the tileset will be exported here
 
 
-#### Grid size
+* **Grid size**
 
-* Suggest using 1/4 parcel size or smaller for good results
-* Grid size must be less than 1/2 your total parcel size
-* Smaller grid sizes will take longer to process as they contain more tiles
-* Larger grid sizes will result in the tile being unloaded closer to the player
-* Consider having a larger vertical axis
+    * Suggest using 1/4 parcel size or smaller for good results
+    * Grid size must be less than 1/2 your total parcel size
+    * Smaller grid sizes will take longer to process as they contain more tiles
+    * Larger grid sizes will result in the tiles being unloaded closer to the player
+    * Consider having a larger vertical axis
+    * Click the "Preview" button to visualise the slicing grid
 
 ### Advanced settings
 
 Some additonal options are available in the "Advanced Settings" panel.
 
-* **Bool solver method**: Choose between Exact or Fast - Exact has better results but slower performance.
-* **Colliders: skip export** - If enabled, ignore any meshes with `_collider` in the name.
-* **JSON minify**: Significantly reduces JSON export file size - disable for dev; enable for production.
-* **glTF: draco compression** - Toggle the use of Draco compression on glTF exports. Note that most 3D viewers do not support Draco. Disable for dev; enable for production.
-* **glTF: export format** - Choose between GLB or GLTF Separate. Recommend GLTF as it supports externalised textures.
-* **glTF: filename prefix** - Specify naming convention for output files.
-* **glTF: tile origin** - Set export origin position to use tile min position, tile center, or tile max position.
+* **Bool solver method**:  
+Choose between Exact or Fast - Exact has better results but slower performance.
+
+* **Ignore '_collider' meshes**:  
+If enabled, ignore any meshes with `_collider` in the name.
+
+* **JSON minify**:  
+Significantly reduces JSON export file size - disable for dev; enable for production.
+
+* **glTF**:  
+    * **Draco compression**:  
+    Toggle the use of Draco compression on glTF exports. Note that most 3D viewers do not support Draco. Disable for dev; enable for production.
+
+    * **Export format**:  
+    Choose between GLB or GLTF Separate. Recommend GLTF as it supports externalised textures.
+
+    * **Filename prefix**:  
+    Specify naming convention for output files.
+
+    * **Swizzle XY**:  
+    Export to Y+ up - this applies to both the glTF files and the `tileset.json`. Recommend enabled at all times, unless you know what you're doing.
+
+    * **Tile origin**:  
+    Set the origin position for exported tiles, can be min, center, or max. Recommend using "Center".
 
 
 How does it work
@@ -89,12 +122,13 @@ The addon peforms roughly the following process when the "Export" button is clic
 Tileset JSON
 ---
 
-> **NOTE:** Positions and indexes are in XYZ order, with Z representing the vertical (up) axis
+> **NOTE:** Positions and indexes are in XYZ order, with Z representing the vertical (up) axis unless **Swizzle YZ** is enabled, to enable Y+ up
 
 The addon exports a JSON structure describing the tileset to `tileset.json`. It contains the following information:
 
 ```js
 {
+    "version"        : "0.2.0",           // Version of plugin used to export tileset
     "name"           : "park",            // Name of the tileset (the collection name)
     "tileset_size"   : [ 7,   6,   2   ], // The total size (in tiles) of the tileset
     "tileset_origin" : [ 0.0, 0.0, 0.0 ], // The origin position of the tileset
@@ -120,16 +154,18 @@ The addon exports a JSON structure describing the tileset to `tileset.json`. It 
 Known issues, limitations and caveats:
 --
 
-1) Tile occupancy is determined by rectangular bounding boxes, this can result in tiles being incorrectly considered to be "occupied" and processed when they do not contain any mesh data. However, a tri-count is done after applying all modifiers and tiles with 0 tris are skipped. This *mostly* works, but sometimes can result in blank tiles.
+1) Tile occupancy is determined by rectangular bounding boxes, this can result in tiles being incorrectly considered to be "occupied" and processed when they do not contain any mesh data.  
+A basic tri-count is done after applying all modifiers and tiles with 0 tris are skipped. This *mostly* works, but sometimes can result in blank tiles.
 1) Does not support Curves
 1) Object visibility is ignored - if it's in the collection, it gets exported
 
 ToDo:
 --
-[ ] Add option to flip tileset.json YZ on export  
+[x] Add option to flip tileset.json YZ on export  
+[x] Add version number to panel/JSON
+[x] Add a way for user to interrupt process  
+[x] Stop UI from locking up  
 [ ] Make all collections objects visible to avoid error with exporter  
-[ ] Add a way for user to interrupt process  
-[ ] Stop UI from locking up  
 [ ] Allow user to export individual tiles  
 [ ] Add batch-exporter  
 [ ] Move tiles to own groups  
