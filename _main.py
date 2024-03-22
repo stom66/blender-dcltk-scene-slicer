@@ -50,7 +50,7 @@ class EXPORT_OT_SceneSlicer_Preview(bpy.types.Operator):
 		# Get the chosen collection in the panel
 		collection = bpy.data.collections.get(ss_settings.export_collection)
 
-		# Generate the basic tileset data from the collection -size, bounds, etc
+		# Generate the basic tileset data from the collection: size, bounds, etc
 		tileset_data = CreateTilesetFromCollection(collection)
 
 		# Create/update the cutter and the helper object
@@ -83,7 +83,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 	def execute(self, context):
 		# Get scene slicer settings
 		ss_settings = bpy.context.scene.ss_settings
-
+		
 		# Setup some starting values for the operation
 		self.count_total         = 0
 		self.count_processed     = 0
@@ -150,6 +150,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 			if obj.type == 'MESH':
 				AddIntersectBooleans(obj, self.cutter)
 				RemoveBrokenBooleans(obj)
+
 		# Update the UI
 		self.updateProgress()
 
@@ -157,18 +158,6 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 		self._timer = context.window_manager.event_timer_add(0.1, window=context.window)
 		context.window_manager.modal_handler_add(self)
 		return {'RUNNING_MODAL'}
-	
-
-	def updateProgress(self):
-		# Get scene slicer settings
-		ss_settings = bpy.context.scene.ss_settings
-
-		# Setup progress indicator
-		ss_settings.export_text     = f"{self.count_processed} of {self.count_total}"
-		ss_settings.export_progress = self.count_processed / self.count_total
-
-		# Update the UI
-		RefreshUI()
 
 
 	def modal(self, context, event):
@@ -184,7 +173,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 			# Prefix to temporarily assign to objects being duplicated for export
 			temp_prefix = "SS_TEMP_RENAME_"
 
-			# How many should we export in each loop?
+			# Batch size, testing resulted in 1 per loop being the most responsive, especialyl when dealing with larger models
 			batch_size = 1
 
 			# Get max tile indexes
@@ -196,7 +185,6 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 
 				# Get the current tile indexes
 				x, y, z = self.tileset_index
-
 
 				# Check if we need to intitialise this array
 				if x == 0: 
@@ -218,14 +206,15 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 					# Move the cutter to the right position
 					self.cutter.location = tile_data["pos_center"]
 
-					# Get the tile origin, based on the export settings
+					# Get the desired tile origin from settings
 					tile_origin = tile_data["pos_center"]
 					if ss_settings.export_origin == "TILE_MIN":
 						tile_origin = tile_data["pos_min"]
 					elif ss_settings.export_origin == "TILE_MAX":
 						tile_origin = tile_data["pos_max"]
 
-					# Move the 3d cursor to the tile origin
+					# Move the 3d cursor to the tile origin. This is semi-redundant as it's also done
+					# by DuplicateObjects, but adding it here seems to be required sometimes
 					bpy.context.scene.cursor.location = tile_origin
 
 					# Duplicate all the objects (applying their modifiers and setting the right position)
@@ -240,10 +229,11 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 							collection.objects.unlink(obj)
 						self.sliced_collection.objects.link(obj)
 
-					# Trigger the gltf export (only if the tri count is > 0)
+					# Check we have some tris before triggering the glTF export
 					if GetTotalTriCount(duplicate_objects) > 0:
 						ExportObjectsToGLtf(duplicate_objects, tile_data["src"])
 						pass
+
 					else:
 						self.count_skipped += 1
 						self.count_skipped_empty += 1
@@ -267,8 +257,7 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 
 
 				# Update the progress bar
-				self.updateProgress()
-				
+				self.updateProgress()				
 				
 				# Add the tile_data to the array of tiles
 				Log(str(self.count_processed), tile_data["src"], "took", time.time() - tile_time_start)
@@ -320,6 +309,31 @@ class EXPORT_OT_SceneSlicer_Export(bpy.types.Operator):
 			# Otherwise we've completed the batch
 			# Update progress
 		return {'PASS_THROUGH'}
+	
+
+	def updateProgress(self):
+		# Get scene slicer settings
+		ss_settings = bpy.context.scene.ss_settings
+
+		# Setup progress indicator
+		ss_settings.export_text     = f"{self.count_processed} of {self.count_total}"
+		ss_settings.export_progress = self.count_processed / self.count_total
+
+		# Update the UI
+		RefreshUI()
+
+	def resetProgress(self):
+
+		# Get scene slicer settings
+		ss_settings = bpy.context.scene.ss_settings
+
+		# Setup progress indicator
+		ss_settings.export_text     = "Idle"
+		ss_settings.export_progress = 0
+
+		Log("ResetProgress")
+		# Update the UI
+		RefreshUI()
 
 def RefreshUI():
 	start = time.time()
