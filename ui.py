@@ -35,20 +35,26 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 
 		# Collection dropdown
 		row = layout.row()
-		row.label(text="Export collection")
-		col = row.column(align=True)
+		
+		split = row.split(factor=0.4)
+		split.label(text="Export collection")
+
+		split2 = split.split(factor=0.8)
+		col = split2.column(align=True)
 		col.prop(context.scene.ss_settings, "export_collection", text="")
-		col = row.column(align=True)
+		col = split2.column(align=True)
 		col.operator("ss.btn_refresh_collections", text="", icon='FILE_REFRESH')
 
 		# Output path
 		row = layout.row()
-		row.label(text="Output folder:")
-		row.prop(context.scene.ss_settings, "output_path", text="")
+		split = row.split(factor=0.4)
+
+		split.label(text="Output folder")
+		split.prop(context.scene.ss_settings, "output_path", text="")
 
 		# Grid size
 		row = layout.row()
-		row.label(text="Grid size:")
+		row.label(text="Grid size")
 		row = layout.row()
 		row.prop(context.scene.ss_settings, "tile_dimensions", text="")
 
@@ -65,16 +71,12 @@ class VIEW3D_PT_SceneSlicer_Main(bpy.types.Panel):
 		split = layout.split(factor=0.4)
 
 		col = split.column(align=True)
-		col.label(text="Export Progress: ")
+		col.label(text="Export progress")
 		
 		col = split.column()
-		col.progress(factor = context.scene.ss_settings.export_progress, 
+		col.progress(factor = bpy.context.scene.ss_settings.export_progress, 
 					 type   = 'BAR', 
-					 text   = context.scene.ss_settings.export_text)
-
-		# Progress
-		row = layout.row()
-		row.label(text="Plugin version: " + context.scene.ss_settings.version)
+					 text   = bpy.context.scene.ss_settings.export_text)
 
 
 # ███████╗███████╗    ███████╗███████╗████████╗████████╗██╗███╗   ██╗ ██████╗ ███████╗
@@ -95,30 +97,38 @@ class VIEW3D_PT_SceneSlicer_Options(bpy.types.Panel):
 	def draw(self, context):
 		layout = self.layout
 
+		# Version
+		row = layout.row()
+		col = row.column(align=True)
+		col.label(text="Plugin version")
+
+		col = row.column(align=True)
+		col.label(text=context.scene.ss_settings.version)
+
 		# Bool solver method
 		row = layout.row()
 		col = row.column(align=False)
-		col.label(text="Bool: solver method")
+		col.label(text="Bool solver method")
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "bool_solver", text="")
 
 		# Skip exporting colliders
 		row = layout.row()
 		col = row.column(align=False)
-		col.label(text="Colliders:  skip export")
+		col.label(text="Ignore '_collider' meshes")
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "skip_colliders", text="")
 
 		# Minify JSON
 		row = layout.row()
 		col = row.column(align=False)
-		col.label(text="JSON: minify output")
+		col.label(text="JSON minify")
 		col = row.column(align=True)
 		col.prop(context.scene.ss_settings, "minify_json", text="")
 	
 		# glTF settings
 		row = layout.row()
-		row.label(text="glTF Settings:")
+		row.label(text="glTF settings:")
 		box = layout.box()
 
 		# Draco compression
