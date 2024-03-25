@@ -1,11 +1,12 @@
 # Blender Decentraland Toolkit: Scene Slicer
 
+<img align="left" width="100" height="100" src="./assets/scene-slicer-logo-512.png" style="margin-right: 0.5em;">
+
 This is a Blender (4.0 or higher) plugin for partitioning a collection of objects into a grid of tiles, and  exporting each tile as a glTF.
 
+  
+
 It was written for use with the **Infinity Engine** in Decentraland - see the [Decentrally repository](https://github.com/decentraland-scenes/decentrally) for more information.
-
-
-![animation of a scene divind into grid pieces](./assets/demo.gif)
 
 ### Features
 
@@ -13,6 +14,11 @@ It was written for use with the **Infinity Engine** in Decentraland - see the [D
 * Supports Draco compression
 * Exports tileset data to JSON
 * Configurable tile size and origin
+
+
+
+![animation of a scene divind into grid pieces](./assets/demo.gif)
+
 
 Installation
 --
@@ -165,6 +171,8 @@ ToDo:
 [x] Add version number to panel/JSON
 [x] Add a way for user to interrupt process  
 [x] Stop UI from locking up  
+[x] Remove rigidbodies from sliced objects
+[ ] Bug: parented objects end up in wrong place after slicing
 [ ] Make all collections objects visible to avoid error with exporter  
 [ ] Allow user to export individual tiles  
 [ ] Add batch-exporter  
