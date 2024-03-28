@@ -18,7 +18,7 @@ bl_info = {
 	"name"       : "DCL Toolkit: Scene Slicer",
 	"description": "Exporter tool for partitioning a scene into a collection of 3D tiles and exporting them to glTF",
 	"author"     : "Tom Steventon - stom66",
-	"version"    : (0, 2, 2),
+	"version"    : (0, 2, 3),
 	"blender"    : (4, 0, 0),
 	"location"   : "3D Viewport -> Sidebar -> DCL Toolkit",
 	"description": "DCL Toolkit: Scene Slicer",
