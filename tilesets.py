@@ -11,6 +11,11 @@ from . _settings 	import *
 from . boundingBox 	import *
 from . tiles		import GetTilePositionMin, GetTilePositionMax, GetTilePositionCenter
 
+try:
+	from . import bl_info
+except ImportError:
+	bl_info = None
+
 # ████████╗██╗██╗     ███████╗███████╗███████╗████████╗███████╗
 # ╚══██╔══╝██║██║     ██╔════╝██╔════╝██╔════╝╚══██╔══╝██╔════╝
 #    ██║   ██║██║     █████╗  ███████╗█████╗     ██║   ███████╗
@@ -58,7 +63,7 @@ def CreateTilesetFromCollection(col: bpy.types.Collection) -> dict[str, object]:
 
 	# Build Tileset data
 	tileset_data = {
-		"version"        : ss_settings.version,
+		"version"        : ".".join(map(str, bl_info["version"])),
 		"name"           : col.name,
 		"tileset_size"   : tileset_size,
 		"tileset_origin" : tileset_origin,

@@ -109,8 +109,8 @@ class VIEW3D_PT_SceneSlicer_Options(bpy.types.Panel):
 
 		col = row.column(align=True)
 		if bl_info:
-			plugin_version = bl_info["version"]
-			col.label(text=".".join(map(str, plugin_version)))
+			plugin_version = ".".join(map(str, bl_info["version"]))
+			col.label(text=plugin_version)
 
 		# Bool solver method
 		row = layout.row()
