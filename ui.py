@@ -2,6 +2,11 @@ import bpy
 
 from . _main import EXPORT_OT_SceneSlicer_Export, EXPORT_OT_SceneSlicer_Preview
 
+# Define a variable to hold bl_info
+try:
+    from . import bl_info
+except ImportError:
+    bl_info = None
 
 # ███████╗███████╗    ███████╗██╗  ██╗██████╗  ██████╗ ██████╗ ████████╗
 # ██╔════╝██╔════╝    ██╔════╝╚██╗██╔╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝
@@ -103,7 +108,9 @@ class VIEW3D_PT_SceneSlicer_Options(bpy.types.Panel):
 		col.label(text="Plugin version")
 
 		col = row.column(align=True)
-		col.label(text=context.scene.ss_settings.version)
+		if bl_info:
+			plugin_version = bl_info["version"]
+			col.label(text=".".join(map(str, plugin_version)))
 
 		# Bool solver method
 		row = layout.row()

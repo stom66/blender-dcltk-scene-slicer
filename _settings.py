@@ -19,13 +19,6 @@ class SceneSlicerSettings(bpy.types.PropertyGroup):
 		items = [(col.name, col.name, col.name) for col in bpy.context.scene.collection.children if col.name != "Cutters"]
 		return items
 
-
-
-	version: bpy.props.StringProperty(
-		name        = "Plugin version",
-		default     = "0.2.1",
-	) # type: ignore
-
 	export_progress: bpy.props.FloatProperty(
 		name        = "Export progress",
 		default     = 0,

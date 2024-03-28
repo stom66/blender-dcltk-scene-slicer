@@ -18,7 +18,7 @@ bl_info = {
 	"name"       : "DCL Toolkit: Scene Slicer",
 	"description": "Exporter tool for partitioning a scene into a collection of 3D tiles and exporting them to glTF",
 	"author"     : "Tom Steventon - stom66",
-	"version"    : (1, 0, 0),
+	"version"    : (0, 2, 2),
 	"blender"    : (3, 6, 0),
 	"location"   : "3D Viewport -> Sidebar -> DCL Toolkit",
 	"description": "DCL Toolkit: Scene Slicer",
@@ -33,7 +33,7 @@ from bpy.app.handlers import persistent
 from . _main 		import *
 from . _settings 	import *
 from . logging		import *
-from . ui 			import *
+from . ui 			import * 
 
 
 
@@ -97,5 +97,6 @@ def unregister():
 
 @persistent
 def HANDLER_UI_ResetProgress(scene):
+
 	Log("HANDLER_Scene_Update_Pre()")
 	EXPORT_OT_SceneSlicer_Export.UI_ResetProgress(EXPORT_OT_SceneSlicer_Export)
