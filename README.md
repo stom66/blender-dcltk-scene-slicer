@@ -22,7 +22,7 @@ It was written for use with the **Infinity Engine** in Decentraland - see the [D
 
 Installation
 --
-* Download the latest version from the [Releases](/releases) page
+* Download the latest version from the [Releases](https://github.com/stom66/blender-dcltk-scene-slicer/releases) page
 * In Blender, go to `Edit > Preferences > Addons > Install`
 * Select the .zip file
 * Once installed ensure the plugin is activated (ticked) in the list of Addons
@@ -123,6 +123,24 @@ The addon peforms roughly the following process when the "Export" button is clic
     * Updates the objects origin (see [Advanced settings - Tile origin](#advanced-settings))
 * Double check we have some mesh data in the tile after applying all the bools
 * Export the duplicated objects and remove them
+
+
+Troubleshooting common problems
+--
+
+* **Problem**: After slicing I see strange new cubes taking up whole tiles  
+    **Solution**: This is usually a problem with mesh geometry aligning with tile boundaries. Check the meshes in the area of the cube, and avoid having verts/edges exactly level with the tile boundary. You can also set the Bool solver method to "Exact" in the Advanced Settings.
+
+* **Problem**: Some objects dissapear/don't get sliced  
+    **Solution**: Can be caused by an object containting multiple, separate meshes. Split the object mesh by selecting all faces in edit mode and using `P` -> `Loose Parts`.  
+    You may also need to apply rotation and scale for the object.   
+    Avoid ngons.
+
+* **Problem**: The Slicer bounds extend past/below the bounds of my scene  
+    **Solution**: The bounds are based on the bounding boxes of all objects in the collection. Check your object bounding boxes. You can enable them in the Object Panel -> Viewport Display -> Bounds
+
+* **Problem**: foo  
+    **Solution**: solution
 
 
 Tileset JSON
