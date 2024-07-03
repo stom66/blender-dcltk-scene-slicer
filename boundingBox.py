@@ -3,8 +3,9 @@ import bpy
 from mathutils 	import Vector
 from typing 	import Optional
 
+from . logging 	import Log
 
-ROUNDING_PRECISION = 3
+ROUNDING_PRECISION = 4
 
 def custom_round(number, decimal_places):
 	factor       = 10 ** decimal_places
@@ -181,8 +182,17 @@ def GetCollectionBounds(col: bpy.types.Collection) -> tuple[
 		for v in obj.bound_box:
 			v_world = obj.matrix_world @ Vector((v[0], v[1], v[2]))
 
+			# check if the obj bounds are lower than the current lowest
+			if v_world[2] < min_xyz[2]:
+				Log("New lowest object found at ", v_world[2], obj.name)
+				
+				# Move the 3d cursor to the lowest point
+				bpy.context.scene.cursor.location = v_world
+				pass
+			
 			# Update min/max for each axis
 			for i in range(3):
+
 				min_xyz[i] = min(min_xyz[i], custom_round(v_world[i], ROUNDING_PRECISION))
 				max_xyz[i] = max(max_xyz[i], custom_round(v_world[i], ROUNDING_PRECISION))
 
